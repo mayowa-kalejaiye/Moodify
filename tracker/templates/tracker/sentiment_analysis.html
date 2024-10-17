@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    {% load static %}
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="View your mood history." />
+    <title>Mood History</title>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mood History">
+    <meta property="og:description" content="View your mood history.">
+    <meta property="og:image" content="{% static 'images/100daysofmiva.jpg' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'tracker/css/styles.css' %}"/>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400&display=swap"
+        rel="stylesheet"
+    />
+    <link href="https://app.marvelly.com.ng/cgpa/design/style.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        if (localStorage.getItem('dark-mode') === 'false' || !('dark-mode' in localStorage)) {
+            document.querySelector('html').classList.remove('dark');
+        } else {
+            document.querySelector('html').classList.add('dark');
+        }
+    </script>
+    <style>
+        .swal2-container.swal2-center>.swal2-popup{
+            background-color: #121212 !important;
+        }
+        .swal2-html-container, .swal2-title{
+            color: white !important;
+        }
+        #message {
+            display: none;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            background-color: #eaf4e1;
+            color: #2e7d32;
+            text-align: center;
+        }
+        .c8z3g {
+            margin: 20px 0;
+        }
+        .mood-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .mood-history-table th, .mood-history-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .mood-history-table th {
+            background-color: #f2f2f2;
+            color: #6366f1;     
+        }
+    </style>
+</head>
+<body class="cj90m c7e3b cisrt c7wkd c2gcs ce7fn clmvh">
+    <!-- Page wrapper -->
+    <div class="cbvui chs6j c8gx0 ckwv3 cjycj cezsk">
+        <!-- Bg coloured shapes -->
+        <div class="cwysf cs1uv cojlt c9v7h cvhgl cr8aa cetkn cag0k" aria-hidden="true">
+            <div class="c5bik c9b4s c0oy8 cmix3 cj04y ckrsz cje3v csstg cevtx cv8gl cyy6y cr8aa c98s8 c3yb8"></div>
+            <div class="cfwzm chupg c9b4s c0oy8 cmix3 cj04y ckrsz csstg c8m5q cevtx cv8gl cyy6y cr8aa cjgsx cnbs3 c3yb8"></div>
+            <div class="csla3 chupg c9b4s c0oy8 cmix3 cj04y ckrsz csstg c8m5q cevtx cv8gl cyy6y cr8aa c110f c9hsq cggi5"></div>
+            <div class="cs09d czbwe cd03c c9b4s c0oy8 cmix3 cj04y ckrsz csstg cevtx cv8gl cc2fz cyy6y cr8aa c8zmq cwoae"></div>
+            <div class="cpxaw crjok c9b4s c0oy8 cmix3 cj04y ckrsz csstg c8m5q cevtx cv8gl cpsm9 cgtcx cc1h8 cr8aa c2svq"></div>
+            <div class="c55mv cpvgd c9b4s c0oy8 cmix3 cj04y ckrsz csstg c8m5q cevtx cv8gl cc2fz cyy6y cr8aa cubdc cggi5"></div>
+        </div>
+        <!-- Vertical lines -->
+        <div class="cwysf cs1uv cojlt c9v7h cvhgl cr8aa cag0k" aria-hidden="true">
+            <!-- Left side -->
+            <div class="c9dpd c30rf crc45 c06dl cd91y czb12 c2wd7 cd8xp cpue7 cevtx ch88u cr5hf cxgoq c6ppr cjkk2 chsmj"></div>
+            <!-- Right side -->
+            <div class="c9dpd c30rf crc45 c06dl cd91y czb12 c2wd7 cd8xp cpue7 cevtx ch88u cr5hf cvq9r cxgoq cj85p c6ppr"></div>            
+        </div>
+        <!-- Site header -->
+        <header class="c9v3y crbyi c7hiy cvq6c cd5ux cr8aa cligc ctdcn coe0p crj7h c2dja casec">
+            <div class="cy6zq crh5c">
+                <div class="cpthp czrhe">
+                    <div class="cvvig cba0k c04cg c45gv c5plh chwso cfctz ccjiw ckwv3 ckqfb cf0cr cezsk c2svq c02c5">
+                        <!-- Border with dots in corners -->
+                        <div class="ch4rd cetk9 couhs c53q4 cehp5 chqy8 cukhb cx8c7 cippd crgvw c2z22 cv89o cr2ij cpue7 crc6r cevtx cr5hf cxgoq cjkk2 c1qs0 ckoug cpnw7 cr8aa cag0k" aria-hidden="true"></div>
+                        <!-- Site branding -->
+                        <div class="ctuhr">
+                            <!-- Logo -->
+                            <a href="/" title="Home">
+                                <img src="{% static 'tracker/images/Miva-favicon.png' %}" width="32" height="32" alt="Mood Icon">
+                            </a>
+                        </div>
+                        <!-- Navigation links -->
+                        <nav class="c3927 cezsk">
+                            <ul class="chwso cxpc2 cmj1h cc7et cezsk">
+                                <li>
+                                    <a class="cpvyo cv7b2 cj90m cgvn6 c2gcs ccjiw cjnro c02c5" href="{% url 'log_mood' %}">Home</a>
+                                </li>
+                                <li>
+                                    <a class="cpvyo cv7b2 cj90m cgvn6 c2gcs ccjiw cjnro c02c5" href="{% url 'log_mood' %}">Log Moods</a>
+                                </li>
+                                <li>
+                                    <a class="cpvyo cv7b2 cj90m cgvn6 c2gcs ccjiw cjnro c02c5" href="{% url 'mood_history' %}">History</a>
+                                </li>                                
+                            </ul>
+                        </nav>
+                        <!-- Dark / Light mode toggle -->
+                        <div class="chso3 ctuhr cezsk">
+                            <input type="checkbox" name="light-switch" id="light-switch" class="light-switch cz99u">
+                            <label class="c9yqy co456" for="light-switch">
+                                <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+                                    <path class="cdp5p crwfp" d="M9 0H7v2h2V0ZM14.294 3.052 12.88 1.637 11.466 3.05l1.413 1.414 1.415-1.413ZM16 7h-2v2h2V7ZM11.535 13.02l1.415 1.413 1.414-1.415-1.415-1.413-1.414 1.414ZM9 14H7v2h2v-2ZM1.566 12.948l1.414 1.415 1.415-1.413-1.414-1.415-1.415 1.413ZM2 7H0v2h2V7ZM4.465 3.12 3.05 1.707 1.636 3.12l1.415 1.414L4.465 3.12Z"></path>
+                                    <path class="c7cme cksqw" d="M8 4C5.8 4 4 5.8 4 8s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4Z"></path>
+                                </svg>
+                                <span class="cz99u">Switch to light / dark version</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Page content -->
+        <main class="cgnjb">
+            <section>
+                <div class="c5fcz cnmmr cg498 cw2nq">
+                    <div class="cy6zq crh5c">
+                        <div class="cpthp czrhe">
+                            <div class="c9pd1">
+                                <div class="c0drb cpgkc ckhko c26j7 c2wd7 cl110 cd8xp ctanz cqckm conig cc8zc c0zgo c3927 chwso clw5z ckuy9 cjewx cx8zz ckwv3 cb7i0 cj1vz cezsk">
+                                    <div class="cxo8x cw1gd cmkro cbc1e cyfzq cevtx cshco cv8gl cgrfs cxcm6 cxpc2 ccjiw c1l9r ckwv3 cryv2 cc7et cf0cr c02c5">
+                                        <!-- Border with dots in corners -->
+                                        <div class="c3cy3 cpoza c4xyw cauvd cehp5 chqy8 c3ehf cks6d c8z9n crgvw c2z22 cr2ij cpue7 c8arv cevtx cr5hf cw7re cxgoq cjkk2 c1qs0 ckoug cpnw7 cr8aa cag0k" aria-hidden="true"></div>                                    
+                                        <span class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">#100daysofMiva🎉 </span>
+                                    </div>
+                                </div>
+                                <h2 class="c0cnt ce627 cwr74 cfatl crlpf cbwmu c2gcs cr5d0 cvxf3 ch47f casec">Your Mood History</h2>
+                                <p class="cauea cgrfs cs94t">
+                                    View your mood history.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Main content -->
+            <section>
+                <div class="c5fcz cg498">
+                    <div class="cy6zq crh5c">
+                        <div class="c1t8r c330t cfs2v c1upr c2wd7 cl110 cd8xp ctanz cqckm conig cc8zc c0zgo c3927 ciay6 c7a79 chwso clw5z cjewx ckwv3 cgio7 c9l48 cezsk">
+                            
+                            <div id="app" class="cgc2y c81ef czrhe coe0p">
+                                <table class="mood-history-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">User</th>
+                                            <th class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">Average Sentiment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                            {% for record in user_average_sentiments %}
+                                                <tr>
+                                                    <td class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">{{ record.user__username }}</td>
+                                                    <td class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">{{ record.average_sentiment|floatformat:3 }}</td>
+                                                </tr>
+                                            {% empty %}
+                                            <tr>
+                                                <td colspan="2" class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">No mood history available.</td>
+                                            </tr>
+                                            {% endfor %}
+                                    </tbody>
+                                </table>
+            
+                                {% if user_average_sentiments %}
+                                    <section>
+                                        <div class="c5fcz cnmmr cg498 cw2nq">
+                                            <div class="cy6zq crh5c">
+                                                <div class="cpthp czrhe">
+                                                    <div class="c9pd1">
+                                                        <p class="cauea cgrfs cs94t">Analysis</p><br>
+                                                        <div class="c0drb cpgkc ckhko c26j7 c2wd7 cl110 cd8xp ctanz cqckm conig cc8zc c0zgo c3927 chwso clw5z ckuy9 cjewx cx8zz ckwv3 cb7i0 cj1vz cezsk">
+                                                            <div class="cxo8x cw1gd cmkro cbc1e cyfzq cevtx cshco cv8gl cgrfs cxcm6 cxpc2 ccjiw c1l9r ckwv3 cryv2 cc7et cf0cr c02c5">
+                                                                <!-- Border with dots in corners -->
+                                                                <div class="c3cy3 cpoza c4xyw cauvd cehp5 chqy8 c3ehf cks6d c8z9n crgvw c2z22 cr2ij cpue7 c8arv cevtx cr5hf cw7re cxgoq cjkk2 c1qs0 ckoug cpnw7 cr8aa cag0k" aria-hidden="true"></div>                                    
+                                                                <canvas id="moodChart" width="400" height="200"></canvas>
+                                                            </div>
+                                                        </div>
+                                                        <p class="cauea cgrfs cs94t">Powered by me🥲</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    <script>
+                                        const ctx = document.getElementById('moodChart').getContext('2d');
+                                        const moodChart = new Chart(ctx, {
+                                            type: 'bar',  // You can choose other types like 'line' or 'pie'
+                                            data: {
+                                                labels: {{ sentiment_labels|safe }},
+                                                datasets: [{
+                                                    label: 'User Average Sentiments',
+                                                    data: {{ sentiment_values|safe }},
+                                                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                                    borderWidth: 1
+                                                }]
+                                            },
+                                            options: {
+                                                scales: {
+                                                    y: {
+                                                        beginAtZero: true
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    </script>
+                                {% else %}
+                                    <p class="c0cnt ce627 cyiq9 ccjbb cfatl c2gcs ckwv3">No mood data available. Please record your moods.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+        <!-- Site footer -->
+        <footer class="c9v3y crbyi c7hiy cvq6c c07f0">
+            <div class="cy6zq crh5c">
+                <div class="cpthp czrhe">
+                    <div class="c9pd1 c82jv">
+                        <p class="cauea cgrfs cc7et"><a class="cb5h9 cfx8h cxpc2" href="{% url 'export_json' %}" download POST>Export as json</a><br/>© Simple Mood Tracker - A more meaningful API #100daysofMiva . Built by <a class="cb5h9 cfx8h cxpc2" onclick=showSupportInfo() >Me</a>. </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- JavaScript Code -->
+    <script src="https://confettijs.org/confetti.min.js"></script>
+    <script>
+        // Light switcher
+        const lightSwitches = document.querySelectorAll('.light-switch');
+        if (lightSwitches.length > 0) {
+            lightSwitches.forEach((lightSwitch, i) => {
+                if (localStorage.getItem('dark-mode') === 'true') {
+                    lightSwitch.checked = true;
+                }
+                lightSwitch.addEventListener('change', () => {
+                    const { checked } = lightSwitch;
+                    lightSwitches.forEach((el, n) => {
+                        if (n !== i) {
+                            el.checked = checked;
+                        }
+                    });
+                    document.documentElement.classList.add('[&_*]:!transition-none');
+                    if (lightSwitch.checked) {
+                        document.documentElement.classList.add('dark');
+                        document.querySelector('html').style.colorScheme = 'dark';
+                        localStorage.setItem('dark-mode', true);
+                        document.dispatchEvent(new CustomEvent('darkMode', { detail: { mode: 'on' } }));
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.querySelector('html').style.colorScheme = 'light';
+                        localStorage.setItem('dark-mode', false);
+                        document.dispatchEvent(new CustomEvent('darkMode', { detail: { mode: 'off' } }));
+                    }
+                    setTimeout(() => {
+                        document.documentElement.classList.remove('[&_*]:!transition-none');
+                    }, 1);
+                });
+            });
+        }
+
+        function showSupportInfo() {
+            Swal.fire({
+                title: "Hit follow and star on GitHub to support my journey! ⭐🚀",
+                text: "https://github.com/mayowa-kalejaiye",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Copy",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    copyToClipboard();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Copied!",
+                        text: "The github account has been copied to your clipboard.",
+                    });
+                }
+            });
+        }
+        
+        function copyToClipboard() {
+            const github_link = "https://github.com/mayowa-kalejaiye";
+            navigator.clipboard.writeText(github_link);
+        }
+    </script>
+    <script src="https://app.marvelly.com.ng/cgpa/design/alpinejs.min.js" defer=""></script>
+</body>
+</html>
