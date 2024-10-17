@@ -35,7 +35,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,https://moodify-wmcd.onrender.com').split(',')
 
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
@@ -84,6 +84,16 @@ TEMPLATES = [
         },
     },
 ]
+
+SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+# SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply to subdomains
+SECURE_HSTS_PRELOAD = True  # Allow browsers to preload
+
+# X_FRAME_OPTIONS = 'DENY'  # Prevent the site from being displayed in an iframe
+CSRF_COOKIE_HTTPONLY = True  # Prevent CSRF cookie from being accessed via JavaScript
+CSRF_TRUSTED_ORIGINS = ['https://moodify-wmcd.onrender.com']  # Add your domain
+
 
 WSGI_APPLICATION = 'mood_tracker.wsgi.application'
 
@@ -143,7 +153,7 @@ LOGOUT_REDIRECT_URL = 'home'  # Redirect to the home page after logout
 LOGIN_REDIRECT_URL = 'log_mood'
 
 if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+#     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
