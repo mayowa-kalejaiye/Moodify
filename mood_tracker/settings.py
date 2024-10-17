@@ -35,7 +35,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,moodify-wmcd.onrender.com').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,moodify-wmcd.onrender.com, app.marvelly.com.ng').split(',')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]  # Clean up whitespace
 
 
