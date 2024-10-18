@@ -139,7 +139,7 @@
                                 <form method="POST" action="{% url 'login' %}" id="loginForm" class="ckwv3">
                                     {% csrf_token %}
                                     
-                                    {% comment %} {% if messages %}
+                                    {% if messages %}
                                         {% for message in messages %}
                                             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
                                         {% endfor %}
@@ -156,7 +156,7 @@
                                         {% endfor %}
                                     </ul>
                                     {% else %}
-                                {% endif %} {% endcomment %}
+                                {% endif %}
                                 
                                 
                                     <!-- Border with dots in corners -->
