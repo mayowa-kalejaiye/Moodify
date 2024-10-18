@@ -151,7 +151,7 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGOUT_REDIRECT_URL = 'home'  # Redirect to the home page after logout
+LOGOUT_REDIRECT_URL = 'login'  # Redirect to the login page after logout
 LOGIN_REDIRECT_URL = 'log_mood'
 
 if not DEBUG:
