@@ -122,6 +122,7 @@ Users can export their mood history in JSON format by clicking the Export json l
 
 ### Visualizations
 
-The mood history page visualizes mood data using charts. It breaks down moods by their frequency and shows them in different colors
+The mood history page visualizes mood data using charts. It breaks down moods by their frequency and shows them in different color
 
-### I don't know why I have it has to be an Open source project, but it's good...right?🫠
+## Edit
+### future explorations: curated/generated playlist based on user's mood
