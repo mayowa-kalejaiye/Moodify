@@ -1,26 +1,32 @@
 asgiref==3.8.1
-bleach==6.1.0
+bleach>=6.1.0 # Added for sanitization
 click==8.1.7
 colorama==0.4.6
-dj-database-url==2.2.0
-Django==5.1.2
-django-tailwind==3.8.0
-gunicorn==23.0.0
-joblib==1.4.2
-nltk==3.9.1
-numpy==2.1.2
+dj-database-url>=2.2.0
+Django>=3.2,<4.0
+# django-tailwind==3.8.0 # Removed, assuming not used by pure API backend
+gunicorn>=20.1.0
+# joblib==1.4.2 # Removed, assuming not used directly by API backend
+nltk==3.9.1 # Dependency for textblob
+# numpy==2.1.2 # Removed, assuming not used directly by API backend
 packaging==24.1
-pandas==2.2.3
+# pandas==2.2.3 # Removed, assuming not used directly by API backend
 psycopg2==2.9.10
 psycopg2-binary==2.9.10
-python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dateutil>=2.8.2
+python-dotenv>=0.19.0
 pytz==2024.2
 regex==2024.9.11
 six==1.16.0
 sqlparse==0.5.1
-textblob==0.18.0.post0
+textblob>=0.15.3
 tqdm==4.66.5
 typing_extensions==4.12.2
 tzdata==2024.2
 webencodings==0.5.1
+djangorestframework>=3.12.0
+djangorestframework-simplejwt>=5.0.0
+drf-yasg>=1.20.0
+django-cors-headers>=3.10.0
+Markdown>=3.3.6
+whitenoise>=5.3.0

@@ -11,7 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-# Use the new settings module path
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mood_tracker.mood_tracker.settings")
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mood_tracker.settings')
 
 application = get_wsgi_application()
