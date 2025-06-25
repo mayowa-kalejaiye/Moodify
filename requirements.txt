@@ -30,3 +30,4 @@ drf-yasg>=1.20.0
 django-cors-headers>=3.10.0
 Markdown>=3.3.6
 whitenoise>=5.3.0
+requests>=2.25.0 # Added for calling the Flask AI service

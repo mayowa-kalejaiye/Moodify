@@ -271,3 +271,6 @@ LOGGING = {
         },
     },
 }
+
+# AI Service URL (points to the Flask AI microservice)
+AI_SERVICE_URL= 'http://127.0.0.1:5001'  # Update this to your actual AI service URL in production

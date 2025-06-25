@@ -1,0 +1,4 @@
+Flask>=2.0
+python-dotenv>=0.19
+google-generativeai>=0.7.0 # Updated to a more recent version
+gunicorn>=20.1.0 # For production

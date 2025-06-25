@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Mood, Comment 
+from .models import Mood, Comment, Profile, AISuggestionFeedback 
 
 @admin.register(Mood)
 class MoodAdmin(admin.ModelAdmin):
@@ -24,4 +24,16 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('user', 'mood', 'created_at')
     list_filter = ('created_at', 'user')
     search_fields = ('content', 'user__username')
+    date_hierarchy = 'created_at'
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'age')
+    search_fields = ('user__username',)
+
+@admin.register(AISuggestionFeedback)
+class AISuggestionFeedbackAdmin(admin.ModelAdmin):
+    list_display = ('user', 'suggestion_type', 'rating', 'created_at')
+    list_filter = ('suggestion_type', 'rating', 'created_at')
+    search_fields = ('user__username', 'suggestion_text')
     date_hierarchy = 'created_at'

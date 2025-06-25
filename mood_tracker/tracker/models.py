@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Mood(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='moods')
@@ -58,3 +60,33 @@ class Comment(models.Model):
     
     def __str__(self):
         return f"Comment by {self.user.username} on mood {self.mood.id}"
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    age = models.PositiveIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} Profile"
+
+class AISuggestionFeedback(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    suggestion_type = models.CharField(max_length=32)  # e.g., 'motivation', 'habits'
+    suggestion_text = models.TextField()
+    rating = models.IntegerField()  # 1=bad, 2=neutral, 3=good
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.suggestion_type} feedback"
+
+def get_or_create_profile(user):
+    """Ensure a Profile exists for the given user."""
+    profile, created = Profile.objects.get_or_create(user=user)
+    return profile
+
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+    else:
+        if hasattr(instance, 'profile'):
+            instance.profile.save()

@@ -16,6 +16,25 @@ curl -X POST http://localhost:8000/api/login/ \
   -d '{"username":"testuser","password":"securepass123"}'
 ```
 
+**Example Login Response:**
+Upon successful login, you will receive a JSON response similar to this:
+```json
+{
+    "user": {
+        "id": 1,
+        "username": "testuser",
+        "email": "test@example.com",
+        "first_name": "",
+        "last_name": ""
+    },
+    "token": "YOUR_DRF_TOKEN_HERE_a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+    "refresh": "YOUR_JWT_REFRESH_TOKEN_HERE_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "access": "YOUR_JWT_ACCESS_TOKEN_HERE_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "message": "Login successful!"
+}
+```
+You can use either the `token` (DRF Token) or the `access` (JWT Access Token) for authenticating subsequent requests.
+
 ### How to use the token
 
 The token should be included in the Authorization header with the prefix "Token":
@@ -107,8 +126,7 @@ curl -X POST http://localhost:8000/api/moods/ \
 
 ### Get mood history
 ```bash
-curl -X GET http://localhost:8000/api/moods/history/ \
-  -H "Authorization: Token YOUR_TOKEN_HERE"
+
 ```
 
 ### Filter mood history
@@ -171,4 +189,14 @@ curl -X GET http://localhost:8000/api/moods/export/csv/ \
 ```bash
 curl -X GET http://localhost:8000/api/sentiment-analysis/ \
   -H "Authorization: Token ADMIN_TOKEN_HERE"
+```
+
+## User Profile Updates
+
+### Update your age (for smarter AI suggestions)
+```bash
+curl -X PATCH http://localhost:8000/api/profile/ \
+  -H "Authorization: Token YOUR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{"profile": {"age": 42}}'
 ```

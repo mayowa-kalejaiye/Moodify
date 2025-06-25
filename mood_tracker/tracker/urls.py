@@ -38,6 +38,7 @@ urlpatterns = [
     path('api/suggestions/motivation/', views.MotivationSuggestionAPIView.as_view(), name='api_motivation_suggestion'),
     path('api/suggestions/habits/', views.HabitImprovementAPIView.as_view(), name='api_habit_improvement'),
     path('api/moods/analysis/patterns/', views.MoodPatternAnalysisAPIView.as_view(), name='api_mood_pattern_analysis'),
+    path('api/ai-feedback/', views.AISuggestionFeedbackAPIView.as_view(), name='api_ai_feedback'),
     
     # Admin-only endpoints
     path('api/sentiment-analysis/', views.SentimentAnalysisAPIView.as_view(), name='api_sentiment_analysis'),

@@ -25,15 +25,23 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .models import Mood, Comment
+from .models import Mood, Comment, Profile, AISuggestionFeedback, get_or_create_profile
 from .serializers import (
     MoodSerializer, 
-    # MoodCommentSerializer, # Commented out as it's legacy
     UserSerializer, 
     UserRegisterSerializer,
     PasswordChangeSerializer,
-    CommentSerializer
+    CommentSerializer,
+    ProfileSerializer,
+    AISuggestionFeedbackSerializer,
 )
+
+import requests
+import os
+import logging
+from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
@@ -181,16 +189,17 @@ class UserProfileAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def put(self, request):
-        """Update user profile"""
+        """Update user profile (including age)"""
         serializer = UserSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
-            # Don't allow username changes through this endpoint
-            if 'username' in serializer.validated_data:
-                return Response(
-                    {'error': 'Username cannot be changed through this endpoint'}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        # Allow PATCH for partial updates (e.g., just age)
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -583,174 +592,135 @@ class CommentDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 # AI Suggestion views
 class MotivationSuggestionAPIView(APIView):
-    """API view to get AI-generated motivational content"""
+    """API view to get AI-generated motivational content by calling the AI microservice"""
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
-        recent_moods = Mood.objects.filter(
-            user=request.user
-        ).order_by('-created_at')[:5]
-        
+        ai_service_url = os.environ.get("AI_SERVICE_URL", "http://127.0.0.1:5001")
+        logger.info(f"MotivationSuggestionAPIView: Using AI_SERVICE_URL={ai_service_url}")
+
+        recent_moods = Mood.objects.filter(user=request.user).order_by('-created_at')[:5]
         if not recent_moods:
             return Response(
-                {"message": "You need to log some moods first"},
+                {"message": "You need to log some moods first to get personalized motivation."},
                 status=status.HTTP_200_OK
             )
-        
-        # Aggregate recent mood data for context
+
         avg_rating = recent_moods.aggregate(avg=Avg('rating'))['avg'] or 3
-        mood_trend = "positive" if avg_rating > 3.5 else "negative" if avg_rating < 2.5 else "neutral"
-        
+        mood_trend_label = "positive" if avg_rating > 3.5 else "negative" if avg_rating < 2.5 else "neutral"
+        user_name = request.user.first_name or request.user.username
+        recent_mood_texts = [mood.mood for mood in recent_moods if mood.mood]
+        recent_notes_texts = [mood.notes for mood in recent_moods if mood.notes]
+
+        # Get age from profile if available, always ensure profile exists
+        user_age = None
         try:
-            # Free AI-like suggestion system using pattern matching and templates
-            
-            # Gather context from user's data for personalization
-            user_name = request.user.first_name or request.user.username
-            time_of_day = "morning" if 5 <= datetime.now().hour < 12 else "afternoon" if 12 <= datetime.now().hour < 18 else "evening"
-            
-            # Get recent mood text for pattern matching
-            recent_mood_texts = [mood.mood.lower() for mood in recent_moods if mood.mood]
-            recent_notes = [mood.notes for mood in recent_moods if mood.notes]
-            
-            # Check for specific patterns in mood data
-            has_anxiety = any('anxious' in text or 'anxiety' in text for text in recent_mood_texts)
-            has_stress = any('stress' in note.lower() if note else False for note in recent_notes)
-            has_positive = any(text in ['happy', 'excited', 'content'] for text in recent_mood_texts)
-            
-            # Create personalized templates based on context
-            motivation_templates = {
-                "positive": [
-                    f"Good {time_of_day}, {user_name}! Keep up the great mindset! Your positive outlook is shaping your reality.",
-                    f"You're doing fantastic, {user_name}! Remember to celebrate these good moments.",
-                    "Your positive energy is contagious. Continue spreading joy!",
-                    "Wonderful progress! Keep nurturing the habits that bring you joy.",
-                ],
-                "neutral": [
-                    f"{user_name}, balance is key. Take time today to do something that brings you joy.",
-                    "Steady as you go. Small positive actions can shift your momentum.",
-                    f"You're in a stable place, {user_name} - a good time to set new goals!",
-                    "Remember that consistency matters more than intensity. Keep going!"
-                ],
-                "negative": [
-                    f"{user_name}, difficult days are just that - days. Not your whole life. Tomorrow is a fresh start.",
-                    "Take a moment for self-care today. Even small acts of kindness to yourself matter.",
-                    "Remember that it's okay not to be okay sometimes. Reach out if you need support.",
-                    "One step at a time. Focus on just the next small positive action."
-                ]
-            }
-            
-            # Add specialized messages based on specific patterns
-            if has_anxiety:
-                motivation_templates["negative"].append("Try this quick exercise: breathe in for 4 counts, hold for 4, out for 6. Repeat 5 times to calm anxiety.")
-                motivation_templates["neutral"].append("When anxious thoughts arise, notice them without judgment. Name them, then let them float by.")
-            
-            if has_stress:
-                motivation_templates["negative"].append("For stress relief: identify one thing you can control and take action on it, let go of what you can't control.")
-                motivation_templates["neutral"].append("Consider a 10-minute break to reset: step outside, stretch, or enjoy a cup of tea mindfully.")
-            
-            # Additional specialized patterns
-            has_sadness = any(text in ['sad', 'depressed', 'down', 'unhappy'] for text in recent_mood_texts)
-            has_anger = any(text in ['angry', 'frustrated', 'annoyed', 'mad'] for text in recent_mood_texts)
-            has_fatigue = any(text in ['tired', 'exhausted', 'fatigued'] for text in recent_mood_texts)
-            
-            if has_sadness:
-                motivation_templates["negative"].append(f"{user_name}, sadness is often telling us something important. What might your sadness be asking for? Perhaps connection or self-compassion.")
-                motivation_templates["neutral"].append("Try the 'opposite action' technique: when feeling down, do something that normally brings you joy, even if you don't feel like it.")
-            
-            if has_anger:
-                motivation_templates["negative"].append("When anger arises, try the 5-5-5 method: name 5 things you see, 5 things you hear, and 5 body sensations. This can help diffuse intense emotions.")
-                motivation_templates["neutral"].append("Anger often masks other emotions like hurt or fear. Can you ask yourself what might be beneath the anger?")
-            
-            if has_fatigue:
-                motivation_templates["negative"].append("Energy management beats time management. Try working in focused 25-minute blocks followed by 5-minute breaks.")
-                motivation_templates["neutral"].append("Consider if you need more rest rather than more motivation. Sometimes the most productive thing is to recharge.")
-            
-            if has_positive and mood_trend == "negative":
-                motivation_templates["negative"].append("You've felt happy recently - remember what brought you joy then and see if you can incorporate it today.")
-            
-            # Select a message based on current ratings and with some randomness
-            import random
-            
-            # Occasionally add variety by selecting from a different category
-            variety_dice = random.random()
-            if variety_dice > 0.85:  # 15% chance to pick from neutral instead of actual mood
-                motivation = random.choice(motivation_templates["neutral"])
+            profile = get_or_create_profile(request.user)
+            user_age = profile.age
+        except Exception:
+            user_age = None
+
+        payload = {
+            "user_name": user_name,
+            "mood_trend_label": mood_trend_label,
+            "recent_mood_texts": recent_mood_texts,
+            "recent_notes_texts": recent_notes_texts,
+            "user_age": user_age,  
+        }
+        logger.debug(f"MotivationSuggestionAPIView: Payload for AI service: {payload}")
+
+        try:
+            response = requests.post(f"{ai_service_url}/motivation", json=payload, timeout=15)
+            logger.info(f"MotivationSuggestionAPIView: AI service response status: {response.status_code}")
+            response.raise_for_status()
+            ai_response_data = response.json()
+            motivation_text = ai_response_data.get("text")
+            if motivation_text:
+                return Response({
+                    "motivation": motivation_text,
+                    "mood_trend": mood_trend_label,
+                    "personalized_with_ai": True,
+                    "source": "AI Service"
+                }, status=status.HTTP_200_OK)
             else:
-                motivation = random.choice(motivation_templates[mood_trend])
-            
-            # Add a personalized closing line
-            closing_lines = [
-                f"Wishing you a wonderful {time_of_day}, {user_name}!",
-                "You've got this!",
-                "One day at a time.",
-                "Small steps lead to big changes.",
-                "You're stronger than you know."
-            ]
-            
-            full_message = f"{motivation} {random.choice(closing_lines)}"
-            
+                logger.error("MotivationSuggestionAPIView: AI service responded but no 'text' field found.")
+                return Response({
+                    "error": "AI service responded but no motivation text was returned.",
+                    "motivation": "",
+                    "personalized_with_ai": False,
+                    "source": "AI Service (Invalid Response)"
+                }, status=status.HTTP_502_BAD_GATEWAY)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"MotivationSuggestionAPIView: Error calling AI service: {e}", exc_info=True)
             return Response({
-                "motivation": full_message,
-                "mood_trend": mood_trend,
-                "personalized": True
-            })
-            
-        except Exception as e:
-            return Response(
-                {"error": "Could not generate motivation", "details": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+                "error": "Failed to connect to AI service.",
+                "motivation": "",
+                "personalized_with_ai": False,
+                "source": "Django Fallback (AI Service Call Failed)",
+                "details": str(e)
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 class HabitImprovementAPIView(APIView):
-    """API view to get AI-generated habit improvement suggestions"""
+    """API view to get AI-generated habit improvement suggestions by calling the AI microservice"""
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
-        # Get moods from the last two weeks
+        ai_service_url = os.environ.get("AI_SERVICE_URL", "http://127.0.0.1:5001")
+        logger.info(f"HabitImprovementAPIView: Using AI_SERVICE_URL={ai_service_url}")
+
         two_weeks_ago = timezone.now() - timedelta(days=14)
         recent_moods = Mood.objects.filter(
             user=request.user,
             created_at__gte=two_weeks_ago
         ).order_by('-created_at')
-        
+
         if recent_moods.count() < 3:
             return Response(
-                {"message": "Need more mood data to provide meaningful habit suggestions"},
+                {"message": "Need more mood data (at least 3 entries in the last 2 weeks) to provide meaningful habit suggestions."},
                 status=status.HTTP_200_OK
             )
-            
-        # Extract patterns based on notes and activities
-        low_mood_activities = recent_moods.filter(rating__lt=3).values('activities').annotate(
-            count=Count('id')).order_by('-count')[:3]
-            
-        high_mood_activities = recent_moods.filter(rating__gt=3).values('activities').annotate(
-            count=Count('id')).order_by('-count')[:3]
-        
-        # Generate simple suggestions
-        suggestions = []
-        
-        if low_mood_activities:
-            for activity in low_mood_activities:
-                if activity['activities']:
-                    suggestions.append(f"Consider reducing '{activity['activities']}' which appears linked to lower moods")
-        
-        if high_mood_activities:
-            for activity in high_mood_activities:
-                if activity['activities']:
-                    suggestions.append(f"Try to increase '{activity['activities']}' which appears linked to better moods")
-        
-        if not suggestions:
-            suggestions = [
-                "Try to maintain a consistent sleep schedule",
-                "Consider adding short walks to your daily routine",
-                "Practice mindfulness for 5 minutes each day",
-                "Limit screen time before bed for better sleep quality"
-            ]
-        
-        return Response({
-            "habit_suggestions": suggestions,
-            "message": "Small consistent changes can significantly impact your mood over time."
-        })
+
+        low_mood_activities = [m.activities for m in recent_moods.filter(rating__lt=3) if m.activities]
+        high_mood_activities = [m.activities for m in recent_moods.filter(rating__gt=3) if m.activities]
+        user_name = request.user.first_name or request.user.username
+
+        payload = {
+            "user_name": user_name,
+            "low_mood_activities": low_mood_activities,
+            "high_mood_activities": high_mood_activities,
+        }
+        logger.debug(f"HabitImprovementAPIView: Payload for AI service: {payload}")
+
+        try:
+            response = requests.post(f"{ai_service_url}/habits", json=payload, timeout=15)
+            logger.info(f"HabitImprovementAPIView: AI service response status: {response.status_code}")
+            response.raise_for_status()
+            ai_response_data = response.json()
+            suggestions_list = ai_response_data.get("suggestions")
+            if suggestions_list and isinstance(suggestions_list, list):
+                return Response({
+                    "habit_suggestions": suggestions_list,
+                    "message": "AI-powered habit suggestions to help you cultivate wellbeing.",
+                    "personalized_with_ai": True,
+                    "source": "AI Service"
+                }, status=status.HTTP_200_OK)
+            else:
+                logger.error("HabitImprovementAPIView: AI service responded but no 'suggestions' list found.")
+                return Response({
+                    "error": "AI service responded but no habit suggestions were returned.",
+                    "habit_suggestions": [],
+                    "personalized_with_ai": False,
+                    "source": "AI Service (Invalid Response)"
+                }, status=status.HTTP_502_BAD_GATEWAY)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"HabitImprovementAPIView: Error calling AI service: {e}", exc_info=True)
+            return Response({
+                "error": "Failed to connect to AI service.",
+                "habit_suggestions": [],
+                "personalized_with_ai": False,
+                "source": "Django Fallback (AI Service Call Failed)",
+                "details": str(e)
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 class MoodPatternAnalysisAPIView(APIView):
     """API view to analyze mood patterns and provide insights"""
@@ -802,3 +772,13 @@ class MoodPatternAnalysisAPIView(APIView):
             "pattern_insights": time_insights,
             "message": "Understanding your mood patterns can help you plan your activities better."
         })
+
+class AISuggestionFeedbackAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = AISuggestionFeedbackSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

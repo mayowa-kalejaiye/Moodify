@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from .models import Mood
+from .models import Mood, get_or_create_profile
 import json
 
 class MoodAPITestCase(APITestCase):
@@ -29,6 +29,10 @@ class MoodAPITestCase(APITestCase):
         self.user1 = User.objects.create_user(username='testuser1', email='test1@example.com', password='password123')
         self.user2 = User.objects.create_user(username='testuser2', email='test2@example.com', password='password123')
         self.admin_user = User.objects.create_superuser(username='admin', email='admin@example.com', password='admin123')
+        # Ensure profiles exist
+        get_or_create_profile(self.user1)
+        get_or_create_profile(self.user2)
+        get_or_create_profile(self.admin_user)
         
         # Create tokens for authentication
         self.token1 = Token.objects.create(user=self.user1)

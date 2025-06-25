@@ -1,20 +1,34 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Mood, Comment
+from .models import Mood, Comment, Profile, AISuggestionFeedback
 import bleach # Added for sanitization
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['age']
+
 class UserSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(required=False)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', None)
+        user = super().update(instance, validated_data)
+        if profile_data:
+            Profile.objects.update_or_create(user=user, defaults=profile_data)
+        return user
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     password_confirm = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    profile = ProfileSerializer(required=False)  # Allow age at registration
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name']
+        fields = ['username', 'email', 'password', 'password_confirm', 'first_name', 'last_name', 'profile']
     
     def validate(self, data):
         # Check if passwords match
@@ -37,6 +51,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
+        profile_data = validated_data.pop('profile', None)
         validated_data.pop('password_confirm')  # Remove password_confirm field
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -45,6 +60,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', '')
         )
+        if profile_data:
+            Profile.objects.update_or_create(user=user, defaults=profile_data)
         return user
 
 class PasswordChangeSerializer(serializers.Serializer):
@@ -60,6 +77,14 @@ class PasswordChangeSerializer(serializers.Serializer):
             raise serializers.ValidationError({"new_password": "Password must be at least 8 characters long"})
         
         return data
+
+# Add a simple LoginSerializer for Swagger documentation
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    # Make class non-abstract for openapi.Schema
+    class Meta:
+        pass # Required for openapi.Schema to work if no model is associated
 
 # class MoodCommentSerializer(serializers.ModelSerializer):
 #     """
@@ -159,3 +184,8 @@ class MoodSerializer(serializers.ModelSerializer):
             value = bleach.clean(value, tags=[], strip=True)
         
         return value
+
+class AISuggestionFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AISuggestionFeedback
+        fields = ['id', 'suggestion_type', 'suggestion_text', 'rating', 'created_at']
