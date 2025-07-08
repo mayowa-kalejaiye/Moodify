@@ -74,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'mood_tracker.tracker.swagger_middleware.SwaggerAuthBypassMiddleware',  # Add before auth middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -156,7 +157,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGOUT_REDIRECT_URL = 'home'  # Redirect to the home page after logout
 LOGIN_REDIRECT_URL = 'log_mood'
-# LOGIN_URL = '/admin/login/'  # Commented out to prevent any login redirects
+# Completely disable login URL to prevent any redirects
+# LOGIN_URL = None
+# Ensure no login redirects happen for unauthenticated users
+LOGIN_URL = ''
+
+# Disable Django's automatic login redirects
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
 
 # DRF Configuration
 REST_FRAMEWORK = {
