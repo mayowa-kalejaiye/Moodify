@@ -316,7 +316,11 @@ LOGGING = {
 }
 
 # AI Service URL (points to the Flask AI microservice)
-AI_SERVICE_URL= 'http://127.0.0.1:5001'  # Update this to your actual AI service URL in production
+AI_SERVICE_URL = os.environ.get('AI_SERVICE_URL', 'http://127.0.0.1:5001')  # Local development default
+
+# AI Configuration
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+AI_FALLBACK_ENABLED = os.environ.get('AI_FALLBACK_ENABLED', 'True').lower() == 'true'
 
 # drf-yasg settings for production
 SWAGGER_SETTINGS = {
