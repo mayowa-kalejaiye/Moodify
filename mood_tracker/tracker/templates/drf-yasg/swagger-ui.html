@@ -35,7 +35,7 @@
     window.onload = function() {
       // Build a system
       const ui = SwaggerUIBundle({
-        url: "{{ spec_url }}",
+        url: "/swagger.json",  // Direct URL to the JSON schema
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
@@ -45,7 +45,9 @@
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl
         ],
-        layout: "StandaloneLayout"
+        layout: "StandaloneLayout",
+        validatorUrl: null,  // Disable validator
+        tryItOutEnabled: true
       });
     };
   </script>
