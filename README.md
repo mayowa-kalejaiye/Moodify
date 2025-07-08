@@ -142,6 +142,16 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+#### **Testing & Validation**
+```bash
+# Test configuration and AI service connectivity
+python tests/test_config.py
+python tests/test_ai_connection.py
+
+# Run full test suite
+python manage.py test tests/
+```
+
 #### **Docker Deployment**
 ```bash
 # Build and run with Docker

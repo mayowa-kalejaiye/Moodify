@@ -22,7 +22,20 @@ This directory contains various test files used during development and validatio
 ### 🤖 **AI Integration Tests**
 - `test_ai_behavior_engine.py` - AI service integration validation
 
+### 🔗 **Configuration & Connectivity Tests**
+- `test_ai_connection.py` - Validates AI service endpoints and connectivity
+- `test_config.py` - Tests Django configuration and environment setup
+
 ## Running Tests
+
+### Configuration Tests
+```bash
+# Test AI service connectivity
+python tests/test_ai_connection.py
+
+# Test Django configuration
+python tests/test_config.py
+```
 
 ### Individual Tests
 ```bash
