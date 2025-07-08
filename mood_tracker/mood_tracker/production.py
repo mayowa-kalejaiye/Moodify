@@ -79,6 +79,19 @@ LOGGING = {
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Static files configuration for drf-yasg
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Additional directories for static files
+STATICFILES_DIRS = [
+    # Add any additional static directories here if needed
+]
+
+# Configure whitenoise to serve drf-yasg static files
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+
 # Database configuration for production
 # Use PostgreSQL if DATABASE_URL is provided (Render default), otherwise fallback to SQLite
 import dj_database_url
