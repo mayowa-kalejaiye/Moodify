@@ -303,6 +303,350 @@ def get_habit_suggestions():
         logger.info(f"Sending error response for /habits. Status: {status_code}, Error: {result}")
         return jsonify(result), status_code
 
+# --- Nudge Generation Endpoint ---
+@app.route('/generate-nudge', methods=['POST'])
+def generate_nudge():
+    """Generate a personalized nudge message based on user context"""
+    if not GEMINI_API_KEY:
+        logger.error("Gemini API key not available. Cannot generate nudge.")
+        return jsonify({"error": "AI service not configured. Missing API key."}), 503
+    
+    try:
+        logger.info("Received request for nudge generation")
+        
+        # Get the request data
+        data = request.json
+        if not data:
+            logger.error("No JSON data received in request")
+            return jsonify({"error": "Request must contain JSON data."}), 400
+        
+        context = data.get('context', {})
+        max_length = data.get('max_length', 150)
+        
+        # Extract context information
+        user_age = context.get('user_age', 'unknown')
+        streak_count = context.get('streak_count', 0)
+        coin_balance = context.get('coin_balance', 0)
+        tone = context.get('tone', 'professional')
+        recent_moods = context.get('recent_moods', [])
+        
+        # Build mood context
+        mood_context = ""
+        if recent_moods:
+            mood_context = "Recent mood patterns: "
+            for mood in recent_moods:
+                mood_context += f"{mood.get('date', 'unknown date')} - {mood.get('mood', 'unknown mood')} (rating: {mood.get('rating', 'unknown')}), "
+            mood_context = mood_context.rstrip(', ')
+        else:
+            mood_context = "No recent mood data available"
+        
+        # Create appropriate prompt based on tone
+        if tone == 'gen_z':
+            prompt = f"""You are a friendly, supportive mental health companion speaking to a young person (age {user_age}). Generate a casual, encouraging nudge message to remind them to log their mood today. 
+
+Context:
+- Current streak: {streak_count} days
+- Coin balance: {coin_balance}
+- {mood_context}
+
+Requirements:
+- Use Gen Z language (casual, friendly, with emojis)
+- Keep it under {max_length} characters
+- Be encouraging and supportive
+- Include a gentle call to action
+- Don't be preachy or overly clinical
+
+Example style: "Hey! Your {streak_count}-day streak is looking great! 🔥 Quick vibe check - how are you feeling today? ✨"
+
+Generate a fresh, personalized message:"""
+        else:
+            prompt = f"""You are a professional, supportive mental health companion. Generate a respectful, encouraging nudge message to remind the user to log their mood today.
+
+Context:
+- Current streak: {streak_count} days
+- Coin balance: {coin_balance}
+- {mood_context}
+
+Requirements:
+- Use professional, respectful language
+- Keep it under {max_length} characters
+- Be encouraging and supportive
+- Include a gentle call to action
+- Focus on the benefits of self-reflection
+
+Example style: "You've maintained a {streak_count}-day reflection streak. Taking a moment to acknowledge your current emotional state can be valuable. How are you feeling today?"
+
+Generate a fresh, personalized message:"""
+        
+        # Generate the nudge using Gemini
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        if response.text:
+            nudge_message = response.text.strip()
+            
+            # Ensure message isn't too long
+            if len(nudge_message) > max_length:
+                nudge_message = nudge_message[:max_length-3] + "..."
+            
+            logger.info(f"Generated nudge message: {nudge_message}")
+            return jsonify({"message": nudge_message, "tone": tone}), 200
+        else:
+            logger.error("AI response was empty")
+            return jsonify({"error": "Failed to generate nudge message"}), 500
+    
+    except Exception as e:
+        logger.error(f"Error generating nudge: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Failed to generate nudge: {str(e)}"}), 500
+
+# --- Challenge Completion Message Generation Endpoint ---
+@app.route('/generate-challenge-message', methods=['POST'])
+def generate_challenge_message():
+    """Generate a personalized challenge completion message"""
+    if not GEMINI_API_KEY:
+        logger.error("Gemini API key not available. Cannot generate challenge message.")
+        return jsonify({"error": "AI service not configured. Missing API key."}), 503
+    
+    try:
+        logger.info("Received request for challenge completion message generation")
+        
+        # Get the request data
+        data = request.json
+        if not data:
+            logger.error("No JSON data received in request")
+            return jsonify({"error": "Request must contain JSON data."}), 400
+        
+        context = data.get('context', {})
+        max_length = data.get('max_length', 200)
+        
+        # Extract context information
+        challenge_type = context.get('challenge_type', 'unknown')
+        stake = context.get('stake', 0)
+        duration_days = context.get('duration_days', 0)
+        user_age = context.get('user_age', 'unknown')
+        completed = context.get('completed', False)
+        tone = context.get('tone', 'professional')
+        
+        # Create appropriate prompt based on tone and completion status
+        if completed:
+            if tone == 'gen_z':
+                prompt = f"""You are a friendly, supportive mental health companion celebrating a young person's achievement. They just completed a {challenge_type} challenge that lasted {duration_days} days with a {stake} coin stake.
+
+Requirements:
+- Use Gen Z language (casual, celebratory, with emojis)
+- Keep it under {max_length} characters
+- Be genuinely excited and congratulatory
+- Mention the coin reward they earned
+- Encourage continued progress
+
+Example style: "YESSS! 🎉 You absolutely crushed that {duration_days}-day {challenge_type} challenge! Your {stake} coins are well-earned! Keep that momentum going! 🔥✨"
+
+Generate a fresh, personalized celebration message:"""
+            else:
+                prompt = f"""You are a professional, supportive mental health companion congratulating the user on completing a {challenge_type} challenge that lasted {duration_days} days with a {stake} coin stake.
+
+Requirements:
+- Use professional, respectful language
+- Keep it under {max_length} characters
+- Be genuinely congratulatory
+- Mention the coin reward and personal growth
+- Encourage continued engagement
+
+Example style: "Congratulations on successfully completing your {duration_days}-day {challenge_type} challenge! You've earned {stake} coins and demonstrated remarkable commitment to your mental health journey."
+
+Generate a fresh, personalized congratulations message:"""
+        else:
+            if tone == 'gen_z':
+                prompt = f"""You are a friendly, supportive mental health companion speaking to a young person who didn't complete their {challenge_type} challenge that lasted {duration_days} days with a {stake} coin stake.
+
+Requirements:
+- Use Gen Z language (casual, encouraging, with emojis)
+- Keep it under {max_length} characters
+- Be supportive and not judgmental
+- Encourage them to try again
+- Focus on learning and growth
+
+Example style: "Hey, no worries about the {challenge_type} challenge - these things happen! 💙 The important thing is you tried. Ready to give it another shot? You've got this! ✨"
+
+Generate a fresh, encouraging message:"""
+            else:
+                prompt = f"""You are a professional, supportive mental health companion speaking to a user who didn't complete their {challenge_type} challenge that lasted {duration_days} days with a {stake} coin stake.
+
+Requirements:
+- Use professional, respectful language
+- Keep it under {max_length} characters
+- Be supportive and encouraging
+- Focus on learning from the experience
+- Encourage future participation
+
+Example style: "While you didn't complete this {challenge_type} challenge, attempting it shows commitment to your wellbeing. Consider what you learned from this experience as you plan your next challenge."
+
+Generate a fresh, supportive message:"""
+        
+        # Generate the message using Gemini
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        if response.text:
+            message = response.text.strip()
+            
+            # Ensure message isn't too long
+            if len(message) > max_length:
+                message = message[:max_length-3] + "..."
+            
+            logger.info(f"Generated challenge message: {message}")
+            return jsonify({"message": message, "tone": tone, "completed": completed}), 200
+        else:
+            logger.error("AI response was empty")
+            return jsonify({"error": "Failed to generate challenge message"}), 500
+    
+    except Exception as e:
+        logger.error(f"Error generating challenge message: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Failed to generate challenge message: {str(e)}"}), 500
+
+# --- Mood Insights Generation Endpoint ---
+@app.route('/generate-insights', methods=['POST'])
+def generate_insights():
+    """Generate personalized mood insights and recommendations"""
+    if not GEMINI_API_KEY:
+        logger.error("Gemini API key not available. Cannot generate insights.")
+        return jsonify({"error": "AI service not configured. Missing API key."}), 503
+    
+    try:
+        logger.info("Received request for mood insights generation")
+        
+        # Get the request data
+        data = request.json
+        if not data:
+            logger.error("No JSON data received in request")
+            return jsonify({"error": "Request must contain JSON data."}), 400
+        
+        context = data.get('context', {})
+        
+        # Extract context information
+        user_age = context.get('user_age', 'unknown')
+        analysis_period = context.get('analysis_period', 30)
+        mood_data = context.get('mood_data', [])
+        avg_rating = context.get('avg_rating', 3.0)
+        total_entries = context.get('total_entries', 0)
+        streak_count = context.get('streak_count', 0)
+        tone = context.get('tone', 'professional')
+        
+        # Build mood pattern analysis
+        mood_patterns = {}
+        activity_patterns = {}
+        
+        for entry in mood_data:
+            mood = entry.get('mood', '').lower()
+            if mood:
+                mood_patterns[mood] = mood_patterns.get(mood, 0) + 1
+            
+            activities = entry.get('activities', '')
+            if activities:
+                for activity in activities.split(','):
+                    activity = activity.strip().lower()
+                    if activity:
+                        activity_patterns[activity] = activity_patterns.get(activity, 0) + 1
+        
+        # Find most common moods and activities
+        top_moods = sorted(mood_patterns.items(), key=lambda x: x[1], reverse=True)[:3]
+        top_activities = sorted(activity_patterns.items(), key=lambda x: x[1], reverse=True)[:3]
+        
+        # Create analysis prompt
+        if tone == 'gen_z':
+            prompt = f"""You're a friendly, insightful mental health companion analyzing {analysis_period} days of mood data for a young person (age {user_age}). 
+
+Data Summary:
+- Total mood entries: {total_entries}
+- Average mood rating: {avg_rating:.1f}/5
+- Current streak: {streak_count} days
+- Most common moods: {', '.join([f'{mood} ({count}x)' for mood, count in top_moods])}
+- Common activities: {', '.join([f'{activity} ({count}x)' for activity, count in top_activities])}
+
+Mood entries sample: {mood_data[:5]}
+
+Generate a response with:
+1. 3-4 personalized insights about their mood patterns (casual, Gen Z tone with emojis)
+2. 3-4 actionable recommendations for improving their mental health
+3. A brief mood trend analysis
+
+Use encouraging, non-clinical language. Be specific about patterns you notice. Format as JSON with keys: "insights", "recommendations", "mood_trends"."""
+        else:
+            prompt = f"""You're a professional mental health companion analyzing {analysis_period} days of mood data for a user (age {user_age}).
+
+Data Summary:
+- Total mood entries: {total_entries}
+- Average mood rating: {avg_rating:.1f}/5
+- Current streak: {streak_count} days
+- Most common moods: {', '.join([f'{mood} ({count}x)' for mood, count in top_moods])}
+- Common activities: {', '.join([f'{activity} ({count}x)' for activity, count in top_activities])}
+
+Mood entries sample: {mood_data[:5]}
+
+Generate a response with:
+1. 3-4 personalized insights about their mood patterns (professional, supportive tone)
+2. 3-4 evidence-based recommendations for enhancing their wellbeing
+3. A comprehensive mood trend analysis
+
+Use professional, encouraging language. Be specific about patterns observed. Format as JSON with keys: "insights", "recommendations", "mood_trends"."""
+        
+        # Generate the insights using Gemini
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        if response.text:
+            # Try to parse as JSON
+            try:
+                import json
+                result = json.loads(response.text)
+                logger.info(f"Generated insights: {len(result.get('insights', []))} insights, {len(result.get('recommendations', []))} recommendations")
+                return jsonify(result), 200
+            except json.JSONDecodeError:
+                # If not valid JSON, create structured response
+                insights_text = response.text.strip()
+                
+                # Basic parsing fallback
+                lines = insights_text.split('\n')
+                insights = []
+                recommendations = []
+                mood_trends = "Analysis of your mood patterns over the specified period."
+                
+                current_section = None
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    if 'insight' in line.lower() or 'pattern' in line.lower():
+                        current_section = 'insights'
+                    elif 'recommend' in line.lower() or 'suggest' in line.lower():
+                        current_section = 'recommendations'
+                    elif 'trend' in line.lower() or 'analysis' in line.lower():
+                        current_section = 'trends'
+                    elif line.startswith(('•', '-', '*', '1.', '2.', '3.', '4.')):
+                        if current_section == 'insights':
+                            insights.append(line)
+                        elif current_section == 'recommendations':
+                            recommendations.append(line)
+                        elif current_section == 'trends':
+                            mood_trends = line
+                
+                result = {
+                    'insights': insights[:4],
+                    'recommendations': recommendations[:4],
+                    'mood_trends': mood_trends
+                }
+                
+                logger.info(f"Generated insights (fallback): {len(result['insights'])} insights, {len(result['recommendations'])} recommendations")
+                return jsonify(result), 200
+        else:
+            logger.error("AI response was empty")
+            return jsonify({"error": "Failed to generate insights"}), 500
+    
+    except Exception as e:
+        logger.error(f"Error generating insights: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Failed to generate insights: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5001))

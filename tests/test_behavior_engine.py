@@ -12,7 +12,7 @@ from django.test.utils import get_runner
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Configure Django settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mood_tracker.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mood_tracker.mood_tracker.settings')
 django.setup()
 
 # Now we can import Django modules

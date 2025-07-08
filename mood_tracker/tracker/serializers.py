@@ -1,24 +1,81 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Mood, Comment, Profile, AISuggestionFeedback
+from .models import Mood, Comment, Profile, AISuggestionFeedback, Challenge, CoinTransaction, Nudge
 import bleach # Added for sanitization
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['age']
+        fields = ['age', 'coin_balance', 'clarity_score', 'streak_count', 'last_mood_log']
+        read_only_fields = ['coin_balance', 'clarity_score', 'streak_count', 'last_mood_log']
+
+class ChallengeSerializer(serializers.ModelSerializer):
+    days_remaining = serializers.ReadOnlyField()
+    is_active = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Challenge
+        fields = ['id', 'challenge_type', 'stake', 'start_date', 'end_date', 
+                 'completed', 'settled', 'is_active', 'days_remaining', 'created_at']
+        read_only_fields = ['completed', 'settled', 'created_at']
+    
+    def validate_stake(self, value):
+        """Ensure stake is within allowed range"""
+        if value < 10 or value > 50:
+            raise serializers.ValidationError("Stake must be between 10 and 50 coins")
+        return value
+    
+    def validate(self, data):
+        """Validate challenge creation"""
+        request = self.context.get('request')
+        if request and request.user:
+            profile = getattr(request.user, 'profile', None)
+            if profile:
+                # Check if user can stake coins (age >= 18)
+                if not profile.can_stake_coins():
+                    raise serializers.ValidationError("Users under 18 cannot participate in staking challenges")
+                
+                # Check if user has enough coins
+                if profile.coin_balance < data.get('stake', 0):
+                    raise serializers.ValidationError("Insufficient coin balance for this stake")
+        
+        return data
+
+class CoinTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoinTransaction
+        fields = ['id', 'transaction_type', 'amount', 'balance_after', 'created_at']
+        read_only_fields = ['id', 'transaction_type', 'amount', 'balance_after', 'created_at']
+
+class NudgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Nudge
+        fields = ['id', 'nudge_type', 'message', 'tone', 'viewed', 'created_at']
+        read_only_fields = ['id', 'nudge_type', 'message', 'tone', 'created_at']
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(required=False)
+    age = serializers.IntegerField(required=False, write_only=True, help_text="Age (will be saved to profile)")
+    
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile', 'age']
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop('profile', None)
+        # Handle both nested profile data and flat age field
+        profile_data = validated_data.pop('profile', {})
+        flat_age = validated_data.pop('age', None)
+        
+        # If age is provided at top level, add it to profile_data
+        if flat_age is not None:
+            profile_data['age'] = flat_age
+        
         user = super().update(instance, validated_data)
+        
+        # Update or create profile if there's profile data
         if profile_data:
             Profile.objects.update_or_create(user=user, defaults=profile_data)
+        
         return user
 
 class UserRegisterSerializer(serializers.ModelSerializer):

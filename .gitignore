@@ -41,6 +41,11 @@ env/
 *.swp
 *.swo
 
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+.history/
+
 # Testing and Coverage
 .coverage
 htmlcov/
