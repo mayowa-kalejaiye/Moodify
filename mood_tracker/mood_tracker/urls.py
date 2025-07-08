@@ -20,31 +20,31 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-# Import the token view properly
 from rest_framework.authtoken.views import obtain_auth_token
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 
-# Create schema view for API documentation with explicit public access
+# Create schema view for PUBLIC API documentation - NO AUTHENTICATION
 schema_view = get_schema_view(
     openapi.Info(
         title="MoodSync API",
         default_version='v1',
-        description="AI-powered mood tracking and wellness platform with time-conscious insights",
-        terms_of_service="https://github.com/mayowa-kalejaiye/Moodify",
+        description="AI-powered mood tracking and wellness platform",
         contact=openapi.Contact(email="contact@moodsync.app"),
         license=openapi.License(name="MIT License"),
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
-    authentication_classes=[],  # Explicitly no authentication for docs
+    permission_classes=(permissions.AllowAny,),
+    authentication_classes=(),
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # API documentation with Swagger
-    path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    # API documentation - COMPLETELY PUBLIC, NO LOGIN REQUIRED
+    path('swagger<format>/', csrf_exempt(never_cache(schema_view.without_ui(cache_timeout=0))), name='schema-json'),
+    path('swagger/', csrf_exempt(never_cache(schema_view.with_ui('swagger', cache_timeout=0))), name='schema-swagger-ui'),
+    path('redoc/', csrf_exempt(never_cache(schema_view.with_ui('redoc', cache_timeout=0))), name='schema-redoc'),
     
     # Add direct token auth endpoint
     path('api/api-token-auth/', obtain_auth_token, name='api_token_auth'),
