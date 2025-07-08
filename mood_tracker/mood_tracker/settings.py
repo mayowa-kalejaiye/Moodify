@@ -74,7 +74,6 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'mood_tracker.tracker.swagger_middleware.SwaggerAuthBypassMiddleware',  # Add before auth middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -160,13 +159,28 @@ LOGIN_REDIRECT_URL = 'log_mood'
 # Completely disable login URL to prevent any redirects
 # LOGIN_URL = None
 # Ensure no login redirects happen for unauthenticated users
-LOGIN_URL = ''
+LOGIN_URL = None
 
 # Disable Django's automatic login redirects
 ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
+
+# DRF-YASG specific settings for public access
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': "Enter token as: **Bearer &lt;your-token&gt;**"
+        }
+    },
+    'USE_SESSION_AUTH': False,  # Disables Django's session authentication in Swagger UI
+    'LOGIN_URL': None,
+    'LOGOUT_URL': None,
+}
 
 # DRF Configuration
 REST_FRAMEWORK = {

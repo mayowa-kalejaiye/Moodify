@@ -83,7 +83,7 @@ def public_redoc_ui(request):
 @csrf_exempt
 @never_cache
 @require_http_methods(["GET"])
-def public_swagger_json(request, format=None):
+def public_swagger_json(request, format='.json'):
     """
     Completely public Swagger JSON schema with zero authentication
     """

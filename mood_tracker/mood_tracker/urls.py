@@ -24,20 +24,27 @@ from rest_framework.authtoken.views import obtain_auth_token
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
 
-# Import our custom public Swagger views
-from mood_tracker.tracker.swagger_views import (
-    public_swagger_ui, 
-    public_redoc_ui, 
-    public_swagger_json
+# Create the schema view with public access
+schema_view = get_schema_view(
+    openapi.Info(
+        title="MoodSync API",
+        default_version='v1',
+        description="AI-powered mood tracking and wellness platform",
+        contact=openapi.Contact(email="contact@moodsync.app"),
+        license=openapi.License(name="MIT License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+    authentication_classes=(),
 )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # API documentation - COMPLETELY PUBLIC, using custom views with ZERO authentication
-    path('swagger<format>/', public_swagger_json, name='schema-json'),
-    path('swagger/', public_swagger_ui, name='schema-swagger-ui'),
-    path('redoc/', public_redoc_ui, name='schema-redoc'),
+    # API documentation - PUBLIC ACCESS
+    path('swagger<format>/', csrf_exempt(never_cache(schema_view.without_ui(cache_timeout=0))), name='schema-json'),
+    path('swagger/', csrf_exempt(never_cache(schema_view.with_ui('swagger', cache_timeout=0))), name='schema-swagger-ui'),
+    path('redoc/', csrf_exempt(never_cache(schema_view.with_ui('redoc', cache_timeout=0))), name='schema-redoc'),
     
     # Add direct token auth endpoint
     path('api/api-token-auth/', obtain_auth_token, name='api_token_auth'),
