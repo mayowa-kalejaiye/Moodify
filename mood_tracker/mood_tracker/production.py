@@ -9,7 +9,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+# Allow Swagger UI to be embedded (less restrictive for API documentation)
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # Changed from 'DENY' to allow Swagger UI
 
 # Ensure your domain is included in allowed hosts
 allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
@@ -78,3 +79,21 @@ LOGGING = {
 # Add whitenoise for static file serving
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Ensure Swagger UI static files are served correctly
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# Additional CORS settings for production API access
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
