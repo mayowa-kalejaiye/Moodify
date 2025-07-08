@@ -237,11 +237,38 @@ else:
         # Default allowed origins for production deployment
         CORS_ALLOWED_ORIGINS = [
             'https://moodify-wmcd.onrender.com',
-            'https://*.onrender.com',
+            'https://www.moodify-wmcd.onrender.com',
         ]
         print("WARNING: CORS_ALLOWED_ORIGINS not set in environment, using defaults!")
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Additional CORS settings for Swagger UI
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Allow all headers for development
+if DEBUG:
+    CORS_ALLOW_ALL_HEADERS = True
+
 # CORS_ORIGIN_WHITELIST is deprecated in favor of CORS_ALLOWED_ORIGINS for newer django-cors-headers
 # If you are using an older version, you might need CORS_ORIGIN_WHITELIST.
 # For development, you might add specific local frontend ports:
@@ -289,4 +316,43 @@ LOGGING = {
 }
 
 # AI Service URL (points to the Flask AI microservice)
-AI_SERVICE_URL= 'http://127.0.0.1:5001'  # Update this to your actual AI service URL in production
+AI_SERVICE_URL = os.environ.get('AI_SERVICE_URL', 'http://127.0.0.1:5001')  # Local development default
+
+# AI Configuration
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+AI_FALLBACK_ENABLED = os.environ.get('AI_FALLBACK_ENABLED', 'True').lower() == 'true'
+
+# drf-yasg settings for production
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        },
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+    'USE_SESSION_AUTH': False,
+    'JSON_EDITOR': True,
+    'SUPPORTED_SUBMIT_METHODS': [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch'
+    ],
+    'OPERATIONS_SORTER': 'alpha',
+    'TAGS_SORTER': 'alpha',
+    'DOC_EXPANSION': 'none',
+    'DEEP_LINKING': True,
+    'SHOW_EXTENSIONS': True,
+    'SHOW_COMMON_EXTENSIONS': True,
+}
+
+REDOC_SETTINGS = {
+    'LAZY_RENDERING': False,
+}

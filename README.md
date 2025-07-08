@@ -159,6 +159,32 @@ docker run -p 8000:8000 moodsync
 
 ---
 
+## 📁 AI Service Moved to Separate Repository
+
+**Note: The AI service has been moved to a separate repository for independent deployment.**
+
+### AI Service Repository Location:
+- **Separate repo**: `moodsync-ai-service` (or your chosen name)
+- **Deployment**: Independent Render deployment
+- **Purpose**: Handles AI-powered mood insights and suggestions
+
+### Main App Configuration:
+The main app connects to the AI service via:
+```bash
+AI_SERVICE_URL=https://your-ai-service.onrender.com
+```
+
+Set this environment variable in your main app's Render deployment.
+
+### Fallback Behavior:
+If AI service is unavailable, the main app provides:
+- Generic motivational messages
+- Basic habit suggestions  
+- Non-AI mood analysis
+- Full functionality for all other features
+
+---
+
 ## 📊 **Key Statistics**
 
 ### 🎯 **Target Metrics** (Based on Behavior Engine)
