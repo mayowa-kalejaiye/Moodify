@@ -78,3 +78,20 @@ LOGGING = {
 # Add whitenoise for static file serving
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Database configuration for production
+# Use PostgreSQL if DATABASE_URL is provided (Render default), otherwise fallback to SQLite
+import dj_database_url
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    # Fallback to SQLite for production (not recommended but works)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/tmp/db.sqlite3',  # Use /tmp for writable location on Render
+        }
+    }

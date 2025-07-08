@@ -22,20 +22,27 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 # Import the token view properly
 from rest_framework.authtoken.views import obtain_auth_token
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
-# Create schema view for API documentation
+# Create schema view for API documentation with explicit public access
+@method_decorator(csrf_exempt, name='dispatch')
+class PublicSchemaView:
+    """Custom wrapper to ensure schema views are always public"""
+    pass
+
 schema_view = get_schema_view(
     openapi.Info(
-        title="Mood Tracker API",
+        title="MoodSync API",
         default_version='v1',
-        description="Track and analyze your moods with sentiment analysis",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@moodtracker.local"),
-        license=openapi.License(name="BSD License"),
+        description="AI-powered mood tracking and wellness platform with time-conscious insights",
+        terms_of_service="https://github.com/mayowa-kalejaiye/Moodify",
+        contact=openapi.Contact(email="contact@moodsync.app"),
+        license=openapi.License(name="MIT License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
-    authentication_classes=[],  # No authentication required for API docs
+    authentication_classes=[],  # Explicitly no authentication for docs
 )
 
 urlpatterns = [

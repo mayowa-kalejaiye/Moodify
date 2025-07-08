@@ -9,6 +9,7 @@ This directory contains utility scripts for database management, testing, and de
 - `create_migration.py` - Create custom Django migrations
 - `reset_migrations.py` - Reset migration state (use with caution)
 - `setup_test_db.py` - Set up test database environment
+- `setup_production_db.py` - Set up production database with migrations and superuser
 - `quick_migrate.py` - Quick migration utility
 
 ### 🧪 **Testing Scripts**
@@ -29,6 +30,9 @@ python scripts/setup_test_db.py
 
 # Quick migration (development)
 python scripts/quick_migrate.py
+
+# Set up production database (deployment)
+python scripts/setup_production_db.py
 ```
 
 ### Testing

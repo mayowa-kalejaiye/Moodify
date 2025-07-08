@@ -25,6 +25,8 @@ This directory contains various test files used during development and validatio
 ### 🔗 **Configuration & Connectivity Tests**
 - `test_ai_connection.py` - Validates AI service endpoints and connectivity
 - `test_config.py` - Tests Django configuration and environment setup
+- `test_swagger_access.py` - Tests Swagger/API documentation accessibility
+- `test_swagger_auth_fix.py` - Verifies Swagger authentication fix works
 
 ## Running Tests
 
@@ -35,6 +37,12 @@ python tests/test_ai_connection.py
 
 # Test Django configuration
 python tests/test_config.py
+
+# Test Swagger API documentation access
+python tests/test_swagger_access.py
+
+# Verify Swagger authentication fix
+python tests/test_swagger_auth_fix.py
 ```
 
 ### Individual Tests

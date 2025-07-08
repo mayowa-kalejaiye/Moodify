@@ -148,8 +148,17 @@ python manage.py runserver
 python tests/test_config.py
 python tests/test_ai_connection.py
 
+# Test Swagger API documentation access
+python tests/test_swagger_access.py
+
 # Run full test suite
 python manage.py test tests/
+```
+
+#### **Production Setup**
+```bash
+# Set up production database and run migrations
+python scripts/setup_production_db.py
 ```
 
 #### **Docker Deployment**
