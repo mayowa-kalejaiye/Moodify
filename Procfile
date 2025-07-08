@@ -1,2 +1,2 @@
-release: python scripts/setup_production_db.py && python manage.py collectstatic --noinput
+release: python scripts/setup_production_db.py
 web: gunicorn mood_tracker.wsgi

@@ -3,13 +3,14 @@ from .settings import *
 # Production-specific settings
 DEBUG = False
 
-# Security settings
+# Security settings (temporarily relaxed for static file debugging)
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+# Temporarily allow framing for Swagger UI
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Ensure your domain is included in allowed hosts
 allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
@@ -77,20 +78,18 @@ LOGGING = {
 
 # Add whitenoise for static file serving
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Static files configuration for drf-yasg
+# Static files configuration for production
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Additional directories for static files
-STATICFILES_DIRS = [
-    # Add any additional static directories here if needed
-]
+# Don't use compressed storage for now to avoid issues
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
-# Configure whitenoise to serve drf-yasg static files
+# Configure whitenoise to serve drf-yasg static files properly
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['js', 'css', 'map', 'json']
 
 # Database configuration for production
 # Use PostgreSQL if DATABASE_URL is provided (Render default), otherwise fallback to SQLite
