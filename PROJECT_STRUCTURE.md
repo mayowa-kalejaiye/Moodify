@@ -16,7 +16,6 @@ mood_tracker/
 ├── 📄 generate_secret_key.py       # Django secret key generator
 ├── 📄 .env.example                 # Environment variables template
 ├── 📁 mood_tracker/                # Main Django project
-├── 📁 ai_service/                  # AI microservice
 ├── 📁 staticfiles/                 # Collected static files
 ├── 📁 docs/                        # Documentation
 ├── 📁 tests/                       # Development tests
@@ -29,7 +28,6 @@ mood_tracker/
 
 ### 🎯 **Core Application**
 - **`mood_tracker/`** - Main Django project with behavior engine
-- **`ai_service/`** - Separate AI microservice for advanced processing
 - **`staticfiles/`** - Production static files (CSS, JS, images)
 
 ### 📖 **Documentation**
@@ -79,3 +77,23 @@ This clean structure is optimized for:
 - **Code reviews**: Organized file changes
 - **Collaboration**: Easy onboarding for new developers
 - **Release management**: Clean version control
+
+## 🤖 AI Service (Separate Repository)
+
+**The AI service has been moved to an independent repository for separate deployment.**
+
+### What was moved:
+- Flask application (`app.py`)
+- AI service requirements (`requirements.txt`) 
+- Environment configuration (`.env`)
+- Service-specific gitignore
+
+### Benefits of separation:
+- **Independent scaling**: AI service can scale separately
+- **Independent updates**: Deploy AI improvements without affecting main app
+- **Resource isolation**: Different resource requirements
+- **Technology flexibility**: Can be rewritten in different frameworks
+- **Cost optimization**: Can use different hosting tiers
+
+### Integration:
+Main app connects via `AI_SERVICE_URL` environment variable.
