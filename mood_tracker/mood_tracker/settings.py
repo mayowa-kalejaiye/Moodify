@@ -22,7 +22,10 @@ SWAGGER_SETTINGS = {
         'deepLinking': True,
         'persistAuthorization': True,
         'displayOperationId': False,
-    }
+    },
+    # Force using CDN for production to avoid static file issues
+    'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest',
+    'REDOC_DIST': 'https://cdn.jsdelivr.net/npm/redoc@latest',
 }ics/settings/
 
 For the full list of settings and their values, see
@@ -205,6 +208,15 @@ SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,  # Disables Django's session authentication in Swagger UI
     'LOGIN_URL': None,
     'LOGOUT_URL': None,
+    # Use CDN for Swagger UI assets if static files fail
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': False,
+    },
+    # Force using CDN for production to avoid static file issues
+    'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest',
+    'REDOC_DIST': 'https://cdn.jsdelivr.net/npm/redoc@latest',
 }
 
 # DRF Configuration
