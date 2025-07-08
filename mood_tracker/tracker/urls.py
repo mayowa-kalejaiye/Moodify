@@ -40,6 +40,14 @@ urlpatterns = [
     path('api/moods/analysis/patterns/', views.MoodPatternAnalysisAPIView.as_view(), name='api_mood_pattern_analysis'),
     path('api/ai-feedback/', views.AISuggestionFeedbackAPIView.as_view(), name='api_ai_feedback'),
     
+    # Behavior Engine endpoints
+    path('api/coins/balance/', views.CoinBalanceView.as_view(), name='api_coin_balance'),
+    path('api/coins/stake/', views.ChallengeView.as_view(), name='api_challenge'),
+    path('api/streak/', views.StreakView.as_view(), name='api_streak'),
+    path('api/nudges/next/', views.NudgeView.as_view(), name='api_nudge'),
+    path('api/behavior/stats/', views.BehaviorEngineStatsView.as_view(), name='api_behavior_stats'),
+    path('api/insights/', views.MoodInsightsView.as_view(), name='api_mood_insights'),
+    
     # Admin-only endpoints
     path('api/sentiment-analysis/', views.SentimentAnalysisAPIView.as_view(), name='api_sentiment_analysis'),
     

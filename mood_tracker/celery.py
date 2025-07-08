@@ -6,7 +6,7 @@ from celery.schedules import crontab
 import os
 
 # Set the default Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mood_tracker.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mood_tracker.mood_tracker.settings')
 
 # Create Celery app
 app = Celery('mood_tracker')
