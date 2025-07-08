@@ -22,15 +22,8 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 # Import the token view properly
 from rest_framework.authtoken.views import obtain_auth_token
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 
 # Create schema view for API documentation with explicit public access
-@method_decorator(csrf_exempt, name='dispatch')
-class PublicSchemaView:
-    """Custom wrapper to ensure schema views are always public"""
-    pass
-
 schema_view = get_schema_view(
     openapi.Info(
         title="MoodSync API",
