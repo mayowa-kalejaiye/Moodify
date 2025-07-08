@@ -149,49 +149,83 @@ class HomeAPIView(APIView):
     def get(self, request):
         """API root endpoint with comprehensive documentation"""
         api_info = {
-            'name': 'Mood Tracker API',
-            'version': '1.0.0',
-            'description': 'Track your moods and analyze sentiment patterns over time.',
+            'name': 'MoodSync API - Behavior Engine v1',
+            'version': '2.0.0',
+            'description': 'Advanced mood tracking with AI insights, behavior analytics, and gamification features.',
             'endpoints': {
                 'authentication': {
-                    'login': {'url': '/api/login/', 'method': 'POST', 'description': 'Login to get authentication token'},
-                    'logout': {'url': '/api/logout/', 'method': 'POST', 'description': 'Invalidate current token'},
-                    'register': {'url': '/api/register/', 'method': 'POST', 'description': 'Create a new user account'},
-                    'password_change': {'url': '/api/password-change/', 'method': 'POST', 'description': 'Change user password'}
+                    'login': {'url': '/api/login/', 'method': 'POST', 'description': 'Login with username/password - returns both legacy token and JWT tokens'},
+                    'logout': {'url': '/api/logout/', 'method': 'POST', 'description': 'Logout and invalidate authentication token'},
+                    'register': {'url': '/api/register/', 'method': 'POST', 'description': 'Create a new user account with automatic profile setup'},
+                    'password_change': {'url': '/api/password-change/', 'method': 'POST', 'description': 'Change user password with old password verification'},
+                    'jwt_token': {'url': '/api/token/', 'method': 'POST', 'description': 'Get JWT access and refresh tokens'},
+                    'jwt_refresh': {'url': '/api/token/refresh/', 'method': 'POST', 'description': 'Refresh JWT access token'},
                 },
-                'users': {
-                    'profile': {'url': '/api/profile/', 'method': 'GET/PUT', 'description': 'View or update user profile'}
+                'profile_management': {
+                    'profile': {'url': '/api/profile/', 'method': 'GET/PUT/PATCH', 'description': 'View or update user profile including age and personal info'},
+                    'coin_balance': {'url': '/api/coins/balance/', 'method': 'GET', 'description': 'Get current coin balance and transaction history'},
+                    'streak': {'url': '/api/streak/', 'method': 'GET', 'description': 'Get current mood logging streak and statistics'},
+                    'behavior_stats': {'url': '/api/behavior/stats/', 'method': 'GET', 'description': 'Comprehensive behavior engine statistics and achievements'},
                 },
-                'moods': {
-                    'create': {'url': '/api/moods/', 'method': 'POST', 'description': 'Log a new mood entry'},
-                    'options': {'url': '/api/moods/', 'method': 'GET', 'description': 'Get available mood options'},
-                    'history': {'url': '/api/moods/history/', 'method': 'GET', 'description': 'Get user\'s mood history'},
-                    'summary': {'url': '/api/moods/summary/', 'method': 'GET', 'description': 'Get summary statistics of user\'s moods'},
-                    'detail': {'url': '/api/moods/{mood_id}/', 'method': 'GET/PUT/DELETE', 'description': 'Get, update or delete a specific mood entry'},
-                    'trends': {'url': '/api/moods/trends/', 'method': 'GET', 'description': 'Get mood trends over time'}
+                'mood_tracking': {
+                    'create': {'url': '/api/moods/', 'method': 'POST', 'description': 'Log a new mood entry with automatic sentiment analysis and coin rewards'},
+                    'options': {'url': '/api/moods/', 'method': 'GET', 'description': 'Get time-aware mood options and suggested activities'},
+                    'history': {'url': '/api/moods/history/', 'method': 'GET', 'description': 'Get mood history with filtering, caching, and pagination'},
+                    'summary': {'url': '/api/moods/summary/', 'method': 'GET', 'description': 'Get comprehensive mood statistics and distribution analysis'},
+                    'trends': {'url': '/api/moods/trends/', 'method': 'GET', 'description': 'Analyze mood trends over time with daily aggregations'},
+                    'detail': {'url': '/api/moods/{mood_id}/', 'method': 'GET/PUT/DELETE', 'description': 'Get, update, or delete a specific mood entry'},
+                    'insights': {'url': '/api/insights/', 'method': 'GET', 'description': 'Get AI-powered mood insights and personalized recommendations'},
                 },
-                'comments': {
-                    'list_create': {'url': '/api/moods/{mood_id}/comments/', 'method': 'GET/POST', 'description': 'List or create comments for a mood entry'},
-                    'detail': {'url': '/api/moods/{mood_id}/comments/{comment_id}/', 'method': 'GET/PUT/DELETE', 'description': 'Retrieve, update, or delete a specific comment'}
+                'comments_reflection': {
+                    'list_create': {'url': '/api/moods/{mood_id}/comments/', 'method': 'GET/POST', 'description': 'List or create reflective comments for mood entries (+2 coins per reflection)'},
+                    'detail': {'url': '/api/moods/{mood_id}/comments/{comment_id}/', 'method': 'GET/PUT/DELETE', 'description': 'Retrieve, update, or delete specific reflection comments'},
                 },
-                'ai_suggestions': {
-                    'motivation': {'url': '/api/suggestions/motivation/', 'method': 'GET', 'description': 'Get personalized motivational messages based on recent mood trends.'},
-                    'habits': {'url': '/api/suggestions/habits/', 'method': 'GET', 'description': 'Get habit improvement suggestions based on mood-activity correlations.'},
-                    'patterns': {'url': '/api/moods/analysis/patterns/', 'method': 'GET', 'description': 'Analyze mood patterns by time of day and day of week.'}
+                'ai_insights': {
+                    'motivation': {'url': '/api/suggestions/motivation/', 'method': 'GET', 'description': 'Get personalized motivational messages based on recent mood patterns'},
+                    'habits': {'url': '/api/suggestions/habits/', 'method': 'GET', 'description': 'Get AI-powered habit improvement suggestions from mood-activity correlations'},
+                    'patterns': {'url': '/api/moods/analysis/patterns/', 'method': 'GET', 'description': 'Advanced mood pattern analysis by time, day, and behavioral factors'},
+                    'feedback': {'url': '/api/ai-feedback/', 'method': 'POST', 'description': 'Submit feedback on AI suggestions to improve recommendations'},
                 },
-                'exports': {
-                    'json': {'url': '/api/moods/export/json/', 'method': 'GET', 'description': 'Export moods in JSON format'},
-                    'csv': {'url': '/api/moods/export/csv/', 'method': 'GET', 'description': 'Export moods in CSV format'}
+                'behavior_engine': {
+                    'challenges': {'url': '/api/coins/stake/', 'method': 'GET/POST', 'description': 'View active challenges or create new mood-based challenges with coin stakes'},
+                    'nudges': {'url': '/api/nudges/next/', 'method': 'GET', 'description': 'Get next personalized nudge based on behavior patterns and time context'},
+                    'coin_transactions': {'url': '/api/coins/balance/', 'method': 'GET', 'description': 'View detailed coin transaction history and earning patterns'},
                 },
-                'admin': {
-                    'sentiment_analysis': {'url': '/api/sentiment-analysis/', 'method': 'GET', 'description': 'Analyze sentiment across all users (admin only)'}
+                'data_export': {
+                    'json': {'url': '/api/moods/export/json/', 'method': 'GET', 'description': 'Export all mood data in JSON format for backup or analysis'},
+                    'csv': {'url': '/api/moods/export/csv/', 'method': 'GET', 'description': 'Export mood data in CSV format for spreadsheet analysis'},
+                },
+                'system_monitoring': {
+                    'health': {'url': '/api/health/', 'method': 'GET', 'description': 'System health check endpoint for monitoring and uptime verification'},
+                    'sentiment_analysis': {'url': '/api/sentiment-analysis/', 'method': 'GET', 'description': 'Admin-only endpoint for cross-user sentiment analysis and trends'},
                 },
                 'documentation': {
-                    'swagger': {'url': '/swagger/', 'method': 'GET', 'description': 'API documentation with Swagger UI'},
-                    'redoc': {'url': '/redoc/', 'method': 'GET', 'description': 'API documentation with ReDoc UI'}
+                    'swagger': {'url': '/swagger/', 'method': 'GET', 'description': 'Interactive API documentation with Swagger UI and live testing'},
+                    'redoc': {'url': '/redoc/', 'method': 'GET', 'description': 'Clean API documentation with ReDoc interface'},
+                    'api_root': {'url': '/api/', 'method': 'GET', 'description': 'This comprehensive API documentation endpoint'},
                 }
             },
-            'status': 'online'
+            'features': {
+                'behavior_engine': 'Gamification with coins, challenges, and streaks',
+                'ai_insights': 'Machine learning-powered mood analysis and suggestions',
+                'sentiment_analysis': 'Automatic sentiment scoring of mood notes',
+                'time_awareness': 'Context-aware mood suggestions based on time of day',
+                'pattern_recognition': 'Advanced mood pattern analysis and trend detection',
+                'personalized_nudges': 'Smart engagement prompts based on user behavior',
+                'data_export': 'Complete data portability in JSON and CSV formats',
+                'caching': 'Optimized performance with intelligent caching',
+                'authentication': 'Multiple auth methods including JWT and legacy tokens',
+            },
+            'coin_system': {
+                'mood_log': '+1 coin per mood entry',
+                'reflection': '+2 coins per mood comment/reflection',
+                'ai_feedback': '+1 coin per AI suggestion feedback',
+                'challenge_win': '2x stake amount for completed challenges',
+                'streak_bonus': 'Bonus coins for maintaining mood logging streaks',
+            },
+            'status': 'online',
+            'build': 'MoodSync-Behavior-Engine-v1',
+            'last_updated': '2025-07-08'
         }
         return Response(api_info, status=status.HTTP_200_OK)
 
@@ -1100,7 +1134,7 @@ class MoodDetailAPIView(APIView):
             # Re-analyze sentiment if notes were updated
             if 'notes' in request.data and mood_entry.notes:
                 sentiment = TextBlob(mood_entry.notes).sentiment
-                mood_entry.sentiment = sentiment.polarity
+                mood_entry.sentiment = sentiment.polarity if sentiment.polarity is not None else 0.0
                 mood_entry.save()
             
             return Response(MoodSerializer(mood_entry).data, status=status.HTTP_200_OK)
