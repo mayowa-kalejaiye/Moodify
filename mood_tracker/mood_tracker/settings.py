@@ -108,7 +108,9 @@ ROOT_URLCONF = 'mood_tracker.mood_tracker.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'mood_tracker' / 'tracker' / 'templates',  # Add custom templates directory
+        ],
         'APP_DIRS': True,  # Changed to True to allow Django to find templates
         'OPTIONS': {
             'context_processors': [
@@ -208,15 +210,11 @@ SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,  # Disables Django's session authentication in Swagger UI
     'LOGIN_URL': None,
     'LOGOUT_URL': None,
-    # Use CDN for Swagger UI assets if static files fail
-    'SWAGGER_UI_SETTINGS': {
-        'deepLinking': True,
-        'persistAuthorization': True,
-        'displayOperationId': False,
-    },
-    # Force using CDN for production to avoid static file issues
-    'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest',
-    'REDOC_DIST': 'https://cdn.jsdelivr.net/npm/redoc@latest',
+    # Force external CDN for Swagger UI to avoid static file issues
+    'SWAGGER_UI_DIST': 'EXTERNAL',
+    'REDOC_DIST': 'EXTERNAL',
+    # Use custom template with CDN resources
+    'SWAGGER_UI_TEMPLATE_NAME': 'drf-yasg/swagger-ui.html',
 }
 
 # DRF Configuration
