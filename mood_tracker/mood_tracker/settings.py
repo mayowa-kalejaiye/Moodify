@@ -156,6 +156,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGOUT_REDIRECT_URL = 'home'  # Redirect to the home page after logout
 LOGIN_REDIRECT_URL = 'log_mood'
+LOGIN_URL = '/admin/login/'  # Prevent redirect to non-existent /accounts/login/
 
 # DRF Configuration
 REST_FRAMEWORK = {
