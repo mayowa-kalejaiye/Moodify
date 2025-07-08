@@ -38,7 +38,17 @@ if not SECRET_KEY:
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Update ALLOWED_HOSTS to include localhost and 127.0.0.1
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] + os.getenv('ALLOWED_HOSTS', '').split(',')
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1'] + [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+else:
+    # Default hosts for development and common deployment platforms
+    ALLOWED_HOSTS = [
+        'localhost', 
+        '127.0.0.1',
+        '.onrender.com',  # Allow all Render subdomains
+        'moodify-wmcd.onrender.com'  # Specific Render domain
+    ]
 
 
 # Application definition
@@ -220,11 +230,16 @@ else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ORIGIN_ALLOW_ALL = False
     # IMPORTANT: Update this list with your actual frontend domain(s) for production
-    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
-    if not CORS_ALLOWED_ORIGINS or CORS_ALLOWED_ORIGINS == ['']:
-        # Fallback or warning if not set in production
-        print("WARNING: CORS_ALLOWED_ORIGINS is not set for production!")
-        CORS_ALLOWED_ORIGINS = [] # Or a sensible default if necessary
+    cors_origins_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
+    if cors_origins_env:
+        CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+    else:
+        # Default allowed origins for production deployment
+        CORS_ALLOWED_ORIGINS = [
+            'https://moodify-wmcd.onrender.com',
+            'https://*.onrender.com',
+        ]
+        print("WARNING: CORS_ALLOWED_ORIGINS not set in environment, using defaults!")
 
 CORS_ALLOW_CREDENTIALS = True
 # CORS_ORIGIN_WHITELIST is deprecated in favor of CORS_ALLOWED_ORIGINS for newer django-cors-headers

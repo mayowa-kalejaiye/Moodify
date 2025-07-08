@@ -12,14 +12,29 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 
 # Ensure your domain is included in allowed hosts
-ALLOWED_HOSTS = ['your-domain.com', 'api.your-domain.com']
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+else:
+    # Default production hosts
+    ALLOWED_HOSTS = [
+        'moodify-wmcd.onrender.com',
+        '.onrender.com',
+        'localhost',
+        '127.0.0.1'
+    ]
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-    "https://your-frontend-domain.com",
-    "https://www.your-frontend-domain.com",
-]
+cors_origins_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+if cors_origins_env:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+else:
+    # Default production CORS origins
+    CORS_ALLOWED_ORIGINS = [
+        "https://moodify-wmcd.onrender.com",
+        "https://www.moodify-wmcd.onrender.com",
+    ]
 
 # Set up proper logging
 LOGGING = {
