@@ -12,7 +12,8 @@ from tracker import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('tracker.urls')),  # Include tracker app URLs
-    path('accounts/', include('django.contrib.auth.urls')),  # Includes default auth URLs
+    # Removed accounts/ URLs to prevent login redirects for API documentation
+    # path('accounts/', include('django.contrib.auth.urls')),  # Includes default auth URLs
     
 ]
 
