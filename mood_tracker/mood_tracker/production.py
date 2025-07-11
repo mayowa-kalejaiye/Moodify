@@ -9,7 +9,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-# Temporarily allow framing for Swagger UI
+# Frame options for security
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Ensure your domain is included in allowed hosts
@@ -123,3 +123,6 @@ else:
     }
     
     print("⚠️  Production: Using SQLite fallback (set DATABASE_URL for Supabase)")
+
+# Production settings - Swagger and debug tools are disabled
+# DEBUG = False ensures that drf-yasg is not loaded in production

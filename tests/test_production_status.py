@@ -27,20 +27,16 @@ def check_production_status():
     except Exception as e:
         print(f"Root: ❌ Error - {e}")
     
-    # Test Swagger
+    # Test Swagger (expected to be disabled in production)
     try:
-        print("\n📚 Testing Swagger UI...")
+        print("\n📚 Testing Swagger UI (should be disabled in production)...")
         response = requests.get(f"{base_url}/swagger/", timeout=10)
         print(f"Swagger: {response.status_code}")
         
-        if response.status_code == 200:
-            content = response.text.lower()
-            if 'swagger' in content and 'api' in content:
-                print("✅ Swagger UI is working correctly!")
-            elif 'login' in content:
-                print("❌ Still showing login page")
-            else:
-                print("⚠️ Page loaded but content unclear")
+        if response.status_code == 404:
+            print("✅ Swagger UI is correctly disabled in production!")
+        elif response.status_code == 200:
+            print("⚠️ Swagger UI is unexpectedly available in production")
         elif response.status_code == 500:
             print("❌ Server error - deployment might still be in progress")
         else:
@@ -49,10 +45,21 @@ def check_production_status():
     except Exception as e:
         print(f"Swagger: ❌ Error - {e}")
     
-    # Test ReDoc
+    # Test ReDoc (expected to be disabled in production)
     try:
-        print("\n📖 Testing ReDoc...")
+        print("\n📖 Testing ReDoc (should be disabled in production)...")
         response = requests.get(f"{base_url}/redoc/", timeout=10)
+        print(f"ReDoc: {response.status_code}")
+        
+        if response.status_code == 404:
+            print("✅ ReDoc is correctly disabled in production!")
+        elif response.status_code == 200:
+            print("⚠️ ReDoc is unexpectedly available in production")
+        else:
+            print(f"ℹ️ ReDoc status: {response.status_code}")
+            
+    except Exception as e:
+        print(f"ReDoc: ❌ Error - {e}")
         print(f"ReDoc: {response.status_code} - {'✅ OK' if response.status_code == 200 else '❌ Error'}")
     except Exception as e:
         print(f"ReDoc: ❌ Error - {e}")

@@ -148,9 +148,6 @@ python manage.py runserver
 python tests/test_config.py
 python tests/test_ai_connection.py
 
-# Test Swagger API documentation access
-python tests/test_swagger_access.py
-
 # Run full test suite
 python manage.py test tests/
 ```
@@ -172,9 +169,9 @@ docker run -p 8000:8000 moodsync
 ```
 
 #### **API Documentation**
-- **Swagger UI**: `http://localhost:8000/swagger/`
-- **ReDoc**: `http://localhost:8000/redoc/`
-- **Examples**: See `api_examples.md`
+- **Swagger UI**: `http://localhost:8000/swagger/` (Development only)
+- **ReDoc**: `http://localhost:8000/redoc/` (Development only)
+- **Examples**: See `docs/api_examples.md`
 
 ---
 

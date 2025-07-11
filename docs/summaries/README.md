@@ -17,8 +17,10 @@ This directory contains detailed development summaries and implementation guides
 ### 🔧 **Technical Solutions**
 
 - `INTEGRITYERROR_FIX_SUMMARY.py` - Database integrity error resolution summary
-- `SWAGGER_ENHANCEMENT_SUMMARY.py` - Swagger documentation enhancement summary
-- `SWAGGER_ENHANCEMENT_FINAL_SUMMARY.py` - Final Swagger enhancement documentation
+
+### 📁 **Legacy Documentation** (Archived)
+
+Legacy Swagger enhancement documentation has been moved to `legacy/` folder since Swagger is now development-only.
 
 ## Purpose
 

@@ -12,16 +12,22 @@ This directory contains utility scripts for database management, testing, deploy
 - `setup_production_db.py` - Set up production database with migrations and superuser
 - `quick_migrate.py` - Quick migration utility
 - `migrate_to_supabase.py` - **NEW** - Helper for migrating to Supabase PostgreSQL
+- `quick_supabase_test.py` - **NEW** - Quick Supabase connection testing
+- `verify_supabase_setup.py` - **NEW** - Comprehensive Supabase setup verification
 
 ### 🧪 **Testing Scripts**
 
 - `run_tests.py` - Python test runner with custom options
 - `run_tests.bat` - Windows batch file for running tests
 
+### 🔧 **Utility Scripts**
+
+- `generate_secret_key.py` - **NEW** - Generate secure Django secret keys
+
 ### 🚀 **Production & Keep-Alive Scripts**
 
-- `keep_alive.py` - Advanced keep-alive service for Render free tier
-- `simple_keep_alive.py` - Simple keep-alive script (recommended)
+- `keep_alive.py` - Advanced keep-alive service for Render free tier (LOCAL VERSION)
+- `simple_keep_alive.py` - Simple keep-alive script
 - `start_keep_alive.bat` - Windows launcher for keep-alive service
 
 ## Keep-Alive Service

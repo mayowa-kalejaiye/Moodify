@@ -4,20 +4,11 @@ This directory contains utility scripts and debugging tools used during MoodSync
 
 ## Tool Categories
 
-### 🔧 **Database Management**
+### 🔧 **Active Development Tools**
 
-- `fix_database.py` - General database repair utilities
-- `fix_database_direct.py` - Direct database manipulation scripts
-- `fix_database_schema.py` - Schema correction tools
-- `fix_migrations.py` - Migration repair utilities
-- `fix_challenge_table.py` - Challenge model specific fixes
-- `fix_cointransaction_table.py` - CoinTransaction table repairs
-
-### 🐛 **Debugging Tools**
-
-- `debug_challenge_table.py` - Challenge model debugging
-- `debug_profile_update.py` - Profile update issue debugging
+- `demo_time_consciousness.py` - Time consciousness feature demonstration
 - `profile_update_test.py` - Profile update validation testing
+- `inspect_project.py` - Project structure inspection utility
 
 ### ✅ **Verification Scripts**
 
@@ -28,8 +19,6 @@ This directory contains utility scripts and debugging tools used during MoodSync
 
 ### 📊 **API Testing Tools**
 
-- `CHECK_SWAGGER_FINAL.py` - Swagger documentation validation
-- `SIMPLE_SWAGGER_CHECK.py` - Basic Swagger functionality test
 - `final_schema_test.py` - Final schema testing
 - `FINAL_RESOLUTION_COMPLETE.py` - Complete resolution validation
 - `FINAL_RESOLUTION_REPORT.py` - Final resolution reporting
@@ -41,6 +30,10 @@ This directory contains utility scripts and debugging tools used during MoodSync
 - `inspect_project.py` - Project structure inspection
 - `demo_time_consciousness.py` - Time consciousness feature demo
 
+### 📁 **Legacy Tools** (Archived)
+
+Legacy database fixing scripts have been moved to `legacy/` folder. These were primarily SQLite-specific tools that are no longer needed after migrating to Supabase.
+
 ## Usage
 
 These tools are primarily for development and debugging purposes:
@@ -51,9 +44,6 @@ python tools/demo_time_consciousness.py
 
 # Check database integrity
 python tools/final_database_verification.py
-
-# Validate Swagger documentation
-python tools/CHECK_SWAGGER_FINAL.py
 ```
 
 ## Important Notes

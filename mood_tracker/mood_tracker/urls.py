@@ -60,7 +60,6 @@ if settings.DEBUG:
     ]
 
 # For development environment, add DRF browsable API authentication
-from django.conf import settings
 if settings.DEBUG:
     urlpatterns += [
         path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
