@@ -1,6 +1,6 @@
 # 📜 Scripts Directory
 
-This directory contains utility scripts for database management, testing, and deployment tasks.
+This directory contains utility scripts for database management, testing, deployment, and production maintenance.
 
 ## Available Scripts
 
@@ -16,6 +16,34 @@ This directory contains utility scripts for database management, testing, and de
 
 - `run_tests.py` - Python test runner with custom options
 - `run_tests.bat` - Windows batch file for running tests
+
+### 🚀 **Production & Keep-Alive Scripts**
+
+- `keep_alive.py` - Advanced keep-alive service for Render free tier
+- `simple_keep_alive.py` - Simple keep-alive script (recommended)
+- `start_keep_alive.bat` - Windows launcher for keep-alive service
+
+## Keep-Alive Service
+
+Render free tier apps sleep after 15 minutes of inactivity and take ~50 seconds to wake up. Use these scripts to keep your app active:
+
+### Quick Start (Recommended)
+```bash
+# Simple keep-alive (pings every 10 minutes)
+python scripts/simple_keep_alive.py
+```
+
+### Windows Users
+Double-click `scripts/start_keep_alive.bat`
+
+### Advanced Usage
+```bash
+# Advanced keep-alive with more features
+python scripts/keep_alive.py
+
+# Run in background mode
+python scripts/keep_alive.py --background
+```
 
 ## Usage Examples
 
