@@ -92,18 +92,34 @@ WHITENOISE_AUTOREFRESH = True
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['js', 'css', 'map', 'json']
 
 # Database configuration for production
-# Use PostgreSQL if DATABASE_URL is provided (Render default), otherwise fallback to SQLite
+# Optimized for Supabase PostgreSQL
 import dj_database_url
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
+    # Parse Supabase/PostgreSQL connection
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
+        'default': dj_database_url.parse(
+            DATABASE_URL, 
+            conn_max_age=600,  # Connection pooling
+            ssl_require=True   # Ensure SSL for security
+        )
     }
+    
+    # Supabase-specific optimizations
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',
+        'connect_timeout': 30,
+        'application_name': 'moodify_django',
+    }
+    
+    print("🚀 Production: Using Supabase PostgreSQL database")
 else:
-    # Fallback to SQLite for production (not recommended but works)
+    # Fallback to SQLite (not recommended for production)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': '/tmp/db.sqlite3',  # Use /tmp for writable location on Render
         }
     }
+    
+    print("⚠️  Production: Using SQLite fallback (set DATABASE_URL for Supabase)")

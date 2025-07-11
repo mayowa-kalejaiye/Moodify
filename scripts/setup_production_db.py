@@ -3,10 +3,14 @@
 Production Database Setup Script
 
 This script ensures the production database is properly migrated
-and creates a superuser if needed.
+and creates a superuser if needed. Works with both SQLite and Supabase PostgreSQL.
 
 Usage:
     python setup_production_db.py
+    
+Environment Variables:
+    DATABASE_URL - Supabase PostgreSQL connection string (recommended)
+    If not set, will use SQLite fallback
 """
 import os
 import sys

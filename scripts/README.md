@@ -11,6 +11,7 @@ This directory contains utility scripts for database management, testing, deploy
 - `setup_test_db.py` - Set up test database environment
 - `setup_production_db.py` - Set up production database with migrations and superuser
 - `quick_migrate.py` - Quick migration utility
+- `migrate_to_supabase.py` - **NEW** - Helper for migrating to Supabase PostgreSQL
 
 ### 🧪 **Testing Scripts**
 
@@ -61,6 +62,9 @@ python scripts/quick_migrate.py
 
 # Set up production database (deployment)
 python scripts/setup_production_db.py
+
+# Migrate to Supabase (one-time setup)
+python scripts/migrate_to_supabase.py fresh
 ```
 
 ### Testing
