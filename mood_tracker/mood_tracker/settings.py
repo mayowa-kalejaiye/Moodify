@@ -86,9 +86,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'drf_yasg',
     'rest_framework_simplejwt',
 ]
+
+# Add development-only apps
+if DEBUG:
+    INSTALLED_APPS += [
+        'drf_yasg',  # Only include Swagger in development
+    ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -108,9 +113,7 @@ ROOT_URLCONF = 'mood_tracker.mood_tracker.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            BASE_DIR / 'mood_tracker' / 'tracker' / 'templates',  # Add custom templates directory
-        ],
+        'DIRS': [],
         'APP_DIRS': True,  # Changed to True to allow Django to find templates
         'OPTIONS': {
             'context_processors': [
@@ -196,26 +199,6 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username'
 ACCOUNT_EMAIL_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
-
-# DRF-YASG specific settings for public access
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-            'description': "Enter token as: **Bearer &lt;your-token&gt;**"
-        }
-    },
-    'USE_SESSION_AUTH': False,  # Disables Django's session authentication in Swagger UI
-    'LOGIN_URL': None,
-    'LOGOUT_URL': None,
-    # Force external CDN for Swagger UI to avoid static file issues
-    'SWAGGER_UI_DIST': 'EXTERNAL',
-    'REDOC_DIST': 'EXTERNAL',
-    # Use custom template with CDN resources
-    'SWAGGER_UI_TEMPLATE_NAME': 'drf-yasg/swagger-ui.html',
-}
 
 # DRF Configuration
 REST_FRAMEWORK = {

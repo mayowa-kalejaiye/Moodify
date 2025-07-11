@@ -17,34 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
 from rest_framework.authtoken.views import obtain_auth_token
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.cache import never_cache
-
-# Create the schema view with public access
-schema_view = get_schema_view(
-    openapi.Info(
-        title="MoodSync API",
-        default_version='v1',
-        description="AI-powered mood tracking and wellness platform",
-        contact=openapi.Contact(email="contact@moodsync.app"),
-        license=openapi.License(name="MIT License"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-    authentication_classes=(),
-)
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
-    # API documentation - PUBLIC ACCESS
-    path('swagger<format>/', csrf_exempt(never_cache(schema_view.without_ui(cache_timeout=0))), name='schema-json'),
-    path('swagger/', csrf_exempt(never_cache(schema_view.with_ui('swagger', cache_timeout=0))), name='schema-swagger-ui'),
-    path('redoc/', csrf_exempt(never_cache(schema_view.with_ui('redoc', cache_timeout=0))), name='schema-redoc'),
     
     # Add direct token auth endpoint
     path('api/api-token-auth/', obtain_auth_token, name='api_token_auth'),
@@ -52,6 +29,35 @@ urlpatterns = [
     # Include tracker app urls
     path('', include('mood_tracker.tracker.urls')),
 ]
+
+# Only add Swagger/API documentation in DEBUG/development mode
+if settings.DEBUG:
+    from rest_framework import permissions
+    from drf_yasg.views import get_schema_view
+    from drf_yasg import openapi
+    from django.views.decorators.csrf import csrf_exempt
+    from django.views.decorators.cache import never_cache
+
+    # Create the schema view for development only
+    schema_view = get_schema_view(
+        openapi.Info(
+            title="MoodSync API",
+            default_version='v1',
+            description="AI-powered mood tracking and wellness platform",
+            contact=openapi.Contact(email="contact@moodsync.app"),
+            license=openapi.License(name="MIT License"),
+        ),
+        public=True,
+        permission_classes=(permissions.AllowAny,),
+        authentication_classes=(),
+    )
+
+    # Add API documentation URLs for development
+    urlpatterns += [
+        path('swagger<format>/', csrf_exempt(never_cache(schema_view.without_ui(cache_timeout=0))), name='schema-json'),
+        path('swagger/', csrf_exempt(never_cache(schema_view.with_ui('swagger', cache_timeout=0))), name='schema-swagger-ui'),
+        path('redoc/', csrf_exempt(never_cache(schema_view.with_ui('redoc', cache_timeout=0))), name='schema-redoc'),
+    ]
 
 # For development environment, add DRF browsable API authentication
 from django.conf import settings
