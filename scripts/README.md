@@ -82,3 +82,28 @@ scripts\run_tests.bat
 ## Integration
 
 These scripts are designed to work with the main Django project structure and should be run from the project root directory.
+
+## 🚀 **Automatic Server-Side Keep-Alive (NEW - Recommended)**
+
+The production app now includes a **built-in keep-alive service** that runs automatically on the server. This is the preferred method as it doesn't require any local setup.
+
+**Features:**
+- ✅ Automatically starts when the app deploys
+- ✅ Runs in the background without user intervention  
+- ✅ Only active in production (disabled in DEBUG mode)
+- ✅ Prevents Render free tier cold starts
+- ✅ Logs activity for monitoring
+
+**Control Commands:**
+```bash
+# Check if keep-alive is running
+python manage.py keep_alive status
+
+# Manually start keep-alive (usually not needed)
+python manage.py keep_alive start
+
+# Stop keep-alive service  
+python manage.py keep_alive stop
+```
+
+The local keep-alive scripts (`keep_alive.py`, `simple_keep_alive.py`) are now backup options only.

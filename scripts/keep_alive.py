@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 """
-Render Keep-Alive Script
+Render Keep-Alive Script (Local Version)
+
+⚠️  IMPORTANT: This is the LOCAL version for manual testing.
+    The production app now has a BUILT-IN keep-alive service that runs
+    automatically on the server. This local script is only needed for
+    testing or if the server-side service fails.
+
+For production, the app automatically starts its own keep-alive service.
+You can control it with:
+    python manage.py keep_alive start
+    python manage.py keep_alive stop  
+    python manage.py keep_alive status
 
 This script sends periodic requests to your Render app to prevent it from 
 going to sleep due to inactivity. Render free tier apps sleep after 15 
