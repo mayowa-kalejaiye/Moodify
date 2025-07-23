@@ -98,6 +98,78 @@ Transform self-care into an engaging experience with our **Clarity Coins** syste
 - **React/Next.js**: Modern, responsive web application
 - **React Native**: Cross-platform mobile app (iOS/Android)
 - **Real-time Updates**: WebSocket integration for live notifications
+
+### 🚀 **Getting Started**
+
+#### 📋 **Prerequisites**
+- Python 3.11+
+- PostgreSQL (production) or SQLite (development)
+- Git
+
+#### ⚙️ **Installation**
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/moodify.git
+   cd moodify
+   ```
+
+2. **Set up a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials and settings
+   ```
+
+5. **Run migrations**
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Start development server**
+   ```bash
+   python manage.py runserver
+   ```
+
+7. **Access the application**
+   - Web UI: http://localhost:8000
+   - API: http://localhost:8000/api/
+   - Swagger Documentation: http://localhost:8000/swagger/
+
+### 🏗️ **Project Structure**
+
+The project is organized into a clear and maintainable structure:
+
+```
+moodify/
+├── mood_tracker/           # Main Django project
+├── docs/                   # Documentation
+├── tests/                  # Test files
+├── tools/                  # Development tools
+└── scripts/                # Utility scripts
+```
+
+For detailed structure information, see [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
+
+### 🧪 **Running Tests**
+
+```bash
+# Run all tests
+python scripts/run_tests.py
+
+# Run specific tests
+pytest tests/test_api_endpoints.py
+```
 - **Offline Support**: Continue tracking even without internet
 
 ### 🤖 **AI Integration**
