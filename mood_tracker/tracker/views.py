@@ -264,14 +264,32 @@ class UserRegisterAPIView(APIView):
     )
     def post(self, request):
         """Register a new user"""
-        serializer = UserRegisterSerializer(data=request.data)
+        #Handles different request format
+        data = {}
+
+        #Try to get data from different possible sources
+        if request.data:
+            # Data in request body (JSON or form)
+            data.update(request.data)
+
+        if request.POST:
+            # Data in form-encoded POST (e.g. from HTML form)
+            data.update(request.POST)
+
+        # Now use the combined data for serialization
+        serializer = UserRegisterSerializer(data=data)
+
         if serializer.is_valid():
             user = serializer.save()
             # Generate token for the new user
             token, created = Token.objects.get_or_create(user=user)
+            refresh = RefreshToken.for_user(user)
+
             return Response({
                 'user': UserSerializer(user).data,
                 'token': token.key,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
                 'message': 'Registration successful!'
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -281,7 +299,7 @@ class UserLoginAPIView(APIView):
     
     @swagger_auto_schema(
         tags=[SWAGGER_TAGS['AUTHENTICATION']],
-        operation_summary="🔑 User Login (Legacy + JWT)",
+        operation_summary="User Login (Legacy + JWT)",
         operation_description="Login with username/password and receive both legacy token and JWT tokens for maximum compatibility",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -311,9 +329,21 @@ class UserLoginAPIView(APIView):
     )
     def post(self, request):
         """Login a user and return both standard token and JWT tokens"""
-        username = request.data.get('username')
-        password = request.data.get('password')
-        
+
+        data = {} 
+
+        if request.data:
+            data.update(request.data)
+
+        if request.query_params:
+            data.update(request.query_params)
+
+        if request.POST:
+            data.update(request.POST)
+
+        username = data.get('username')
+        password = data.get('password')
+
         if username and password:
             user = authenticate(username=username, password=password)
             if user:
@@ -333,8 +363,7 @@ class UserLoginAPIView(APIView):
                     'message': 'Login successful!'
                 }, status=status.HTTP_200_OK)
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response({'error': 'Please provide both username and password'}, 
-                       status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Please provide both username and password'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
