@@ -213,10 +213,10 @@ curl -X POST http://localhost:8000/api/moods/ \
   -H "Authorization: Token your-token-here" \
   -H "Content-Type: application/json" \
   -d '{
-    "mood": "Happy",
-    "rating": 4,
-    "notes": "Had a great day at work!",
-    "activities": "work,exercise"
+    "mood": "Contemplating",
+    "rating": 7,
+    "notes": "Late night coding",
+    "activities": "work,coding"
   }'
 ```
 
@@ -225,16 +225,18 @@ curl -X POST http://localhost:8000/api/moods/ \
 {
   "id": 45,
   "user": 5,
-  "mood": "Happy",
-  "rating": 4,
-  "notes": "Had a great day at work!",
-  "activities": "work,exercise",
-  "sentiment": 0.8,
-  "created_at": "2025-07-23T16:30:45.123456Z",
+  "mood": "Contemplating",
+  "rating": 7,
+  "notes": "Late night coding",
+  "activities": "work,coding",
+  "sentiment": 0.6,
+  "created_at": "2025-07-24T01:30:45.123456Z",
+  "username": "newuser123",
+  "comments": [],
   "time_context": {
-    "period": "afternoon",
-    "greeting": "Good afternoon!",
-    "energy_level": "sustained"
+    "period": "late_night",
+    "greeting": "Good morning!",
+    "energy_level": "focused"
   }
 }
 ```
@@ -248,7 +250,7 @@ curl -X GET http://localhost:8000/api/moods/history/ \
   -H "Authorization: Token your-token-here"
 
 # With filters
-curl -X GET "http://localhost:8000/api/moods/history/?start_date=2025-07-01&end_date=2025-07-23&mood=Happy&limit=10" \
+curl -X GET "http://localhost:8000/api/moods/history/?start_date=2025-07-01&end_date=2025-07-23&mood=Contemplating&limit=10" \
   -H "Authorization: Token your-token-here"
 ```
 

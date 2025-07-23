@@ -12,12 +12,17 @@ class Mood(models.Model):
     notes = models.TextField(blank=True, null=True)
     sentiment = models.FloatField(null=True, blank=True)
     activities = models.CharField(max_length=255, blank=True, null=True)
-    rating = models.IntegerField(default=3, choices=[
-        (1, 'Very Bad'),
-        (2, 'Bad'),
-        (3, 'Neutral'),
-        (4, 'Good'),
-        (5, 'Very Good')
+    rating = models.IntegerField(default=5, choices=[
+        (1, 'Very Low'),
+        (2, 'Low'),
+        (3, 'Mild'),
+        (4, 'Moderate'),
+        (5, 'Good'),
+        (6, 'High'),
+        (7, 'Very High'),
+        (8, 'Intense'),
+        (9, 'Very Intense'),
+        (10, 'Extreme')
     ])
     created_at = models.DateTimeField(auto_now_add=True)
 

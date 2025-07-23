@@ -588,7 +588,15 @@ class MoodCreateAPIView(APIView):
                         'rating': openapi.Schema(type=openapi.TYPE_INTEGER),
                         'notes': openapi.Schema(type=openapi.TYPE_STRING),
                         'sentiment': openapi.Schema(type=openapi.TYPE_NUMBER, description="Auto-calculated sentiment score"),
-                        'created_at': openapi.Schema(type=openapi.TYPE_STRING, format='datetime')
+                        'created_at': openapi.Schema(type=openapi.TYPE_STRING, format='datetime'),
+                        'time_context': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            properties={
+                                'period': openapi.Schema(type=openapi.TYPE_STRING, description="Time period (e.g., 'late_night', 'morning')"),
+                                'greeting': openapi.Schema(type=openapi.TYPE_STRING, description="Time-appropriate greeting"),
+                                'energy_level': openapi.Schema(type=openapi.TYPE_STRING, description="Expected energy level for this time")
+                            }
+                        )
                     }
                 )
             ),
@@ -613,7 +621,19 @@ class MoodCreateAPIView(APIView):
             # Now save the instance with additional data
             mood_entry.save()
             
-            return Response(MoodSerializer(mood_entry).data, status=status.HTTP_201_CREATED)
+            # Get time context for the response
+            current_time = timezone.now()
+            time_context = TimeOfDayContext.get_context(current_time)
+            
+            # Create response data with time context
+            response_data = MoodSerializer(mood_entry).data
+            response_data['time_context'] = {
+                'period': time_context['period'],
+                'greeting': time_context['greeting'],
+                'energy_level': time_context['energy_level']
+            }
+            
+            return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
@@ -671,36 +691,6 @@ class MoodCreateAPIView(APIView):
                 'focus': time_context['focus']
             }
         }, status=status.HTTP_200_OK)
-    
-# class MoodCommentViewSet(APIView): # Should be MoodCommentAPIView if not a ViewSet
-#     """
-#     LEGACY VIEW: This view is for the MoodComment model, which is considered legacy.
-#     Please use CommentListCreateAPIView and CommentDetailAPIView for new development.
-#     This will be removed in a future version.
-#     """
-#     serializer_class = MoodCommentSerializer # This serializer is also marked legacy
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         """Get queryset for mood comments"""
-#         queryset = MoodComment.objects.filter(user=request.user)
-#         serializer = self.serializer_class(queryset, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-#     def post(self, request):
-#         """Create a new comment for a mood entry"""
-#         serializer = self.serializer_class(data=request.data)
-#         if serializer.is_valid():
-#             # Ensure the mood entry exists and belongs to the user
-#             mood_entry_id = request.data.get('mood_entry')
-#             try:
-#                 mood_entry = Mood.objects.get(id=mood_entry_id, user=request.user)
-#                 serializer.save(mood_entry=mood_entry)
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             except Mood.DoesNotExist:
-#                 return Response({'error': 'Mood entry not found or you do not have permission'}, 
-#                                 status=status.HTTP_404_NOT_FOUND)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MoodHistoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
